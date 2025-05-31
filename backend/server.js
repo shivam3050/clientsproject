@@ -27,7 +27,7 @@ connectDB()
     const app = express();
 
     const host = process.env.HOST || "0.0.0.0"
-    const port = process.env.PORT || "8000"
+    const port = process.env.PORT || 8000
     app.use(cors())
     app.get("/",(req,res)=>{
         console.log("Request came from : "+req.hostname)

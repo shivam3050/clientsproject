@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import express, { json } from "express";
 import cors from "cors"
 
+import {google} from "googleapis"
+
 const connectDB = async ()=>{
 try {
         const connectionAttempt = await mongoose.connect(`${process.env.MONGODB_URI}`,
@@ -32,10 +34,12 @@ connectDB()
     app.get("/",(req,res)=>{
         console.log("Request came from : "+req.hostname)
         res.send("Ok i recieved the request.")
+        return
     })
 
     app.listen(port,host, ()=>{
         console.log(`Server is listening on the ${host}:${port}`)
+        return
     })
 })
 .catch((error)=>{

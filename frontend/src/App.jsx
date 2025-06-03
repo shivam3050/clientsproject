@@ -4,13 +4,10 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-
-  const backendUrl = "192.168.43.34"
-  const backendPort = 8000
+const backendUrl = "https://clientsprojectbackend.onrender.com"
   const sendGetRequest = async ()=>{
     try {
-      const response = await fetch(`http://${backendUrl}:${backendPort}`
-      )
+      const response = await fetch(backendUrl)
       const text = await response.text();
       alert(text)
       

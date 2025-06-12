@@ -1,0 +1,28 @@
+.StudentBody .main {
+    width: 100%;
+    height: calc(90vh);
+    background-color: rgb(255, 255, 255);
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+.subjects-scroll{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+   
+    
+
+}
+.subjects-scroll > *{
+    box-shadow: 0px 5px 15px 5px rgb(129, 129, 129);
+    width: clamp(300px,15vw,500px);
+    height: clamp(250px,13vw,400px);
+    background-color: rgb(255, 255, 255);
+    margin: 15px;
+    border-radius: 10px;
+    font-size: calc(40px + 1%);
+    padding: 10px;
+    flex-shrink: 0;  
+}

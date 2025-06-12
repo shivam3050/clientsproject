@@ -1,0 +1,144 @@
+{
+  "Exams": {
+    "SSC Stenographer Grade C / D Recruitment 2025": {
+      "GeneralIntelligenceAndReasoning": {
+        "description": "Includes both verbal and non-verbal questions.",
+        "topics": [
+          "Analogies", "Similarities and differences", "Space visualization",
+          "Problem solving", "Analysis", "Judgment", "Decision making",
+          "Visual memory", "Discriminating observation", "Relationship concepts",
+          "Arithmetical reasoning", "Verbal and figure classification",
+          "Arithmetical number series", "Non-verbal series", "Abstract ideas and symbols",
+          "Arithmetical computation", "Analytical functions"
+        ]
+      },
+      "GeneralAwareness": {
+        "description": "Tests general awareness of the environment and its application to society.",
+        "topics": [
+          "Current events", "Everyday observations in scientific aspects", "India and neighboring countries",
+          "Sports", "History", "Culture", "Geography", "Economic scene",
+          "General polity including Indian Constitution", "Scientific research"
+        ]
+      },
+      "EnglishLanguageAndComprehension": {
+        "description": "Tests understanding of English language and writing ability.",
+        "topics": [
+          "Vocabulary", "Grammar", "Sentence structure", "Synonyms",
+          "Antonyms", "Correct usage", "Writing ability"
+        ]
+      }
+    },
+
+    "Combined Graduate Level Examination, 2010": {
+      "GeneralIntelligenceAndReasoning": {
+        "description": "Includes questions of both verbal and non-verbal type.",
+        "topics": [
+          "Analogies", "Similarities and differences", "Spatial visualization", "Spatial orientation",
+          "Problem solving", "Analysis", "Judgement", "Decision making", "Visual memory",
+          "Discrimination", "Observation", "Relationship concepts", "Arithmetical reasoning",
+          "Neural classification", "Arithmetic number series", "Non-verbal series", "Coding and decoding",
+          "Statement conclusion", "Syllogistic reasoning"
+        ]
+      },
+      "GeneralAwareness": {
+        "description": "Tests general awareness of the environment and its application to society.",
+        "topics": [
+          "Current events", "Everyday observations in scientific aspects", "India and neighbouring countries",
+          "Sports", "History", "Culture", "Geography", "Economic Scene",
+          "General Polity", "Indian Constitution", "Scientific Research"
+        ]
+      },
+      "NumericalAptitude": {
+        "description": "Tests ability of appropriate use of numbers and number sense.",
+        "topics": [
+          "Computation of whole numbers", "Decimals and fractions", "Relationships between numbers",
+          "Number sense", "Estimation", "Real-life problem solving", "Arithmetical concepts (10+2 level)"
+        ]
+      },
+      "EnglishComprehension": {
+        "description": "Tests understanding of English language and writing ability.",
+        "topics": [
+          "Vocabulary", "Grammar", "Sentence structure", "Synonyms",
+          "Antonyms", "Correct usage", "Writing ability"
+        ]
+      }
+    },
+
+    "Recruitment of Sub-Inspector in Delhi Police, CAPFs and Assistant Sub-Inspectors in CISF": {
+      "GeneralIntelligenceAndReasoning": {
+        "description": "Includes questions of both verbal and non-verbal type.",
+        "topics": [
+          "Analogies", "Similarities and differences", "Space visualization", "Spatial orientation",
+          "Problem solving", "Analysis", "Judgment", "Decision making", "Visual memory",
+          "Discrimination", "Observation", "Relationship concepts", "Arithmetical reasoning",
+          "Figural classification", "Arithmetic number series", "Non-verbal series", "Coding and decoding",
+          "Statement conclusion", "Syllogistic reasoning", "Semantic Analogy", "Symbolic/Number Analogy",
+          "Figural Analogy", "Semantic Classification", "Symbolic/Number Classification",
+          "Figural Classification", "Semantic Series", "Number Series", "Figural Series", "Word Building",
+          "Numerical Operations", "Symbolic Operations", "Trends", "Venn Diagrams", "Drawing inferences",
+          "Punched hole/pattern-folding & unfolding", "Figural Pattern-folding and completion", "Indexing",
+          "Address matching", "Date & city matching", "Classification of centre codes/roll numbers",
+          "Small & Capital letters/numbers coding, decoding and classification", "Embedded Figures",
+          "Critical thinking", "Emotional Intelligence", "Social Intelligence"
+        ]
+      },
+      "GeneralAwareness": {
+        "description": "Tests general awareness of the environment and its application to society.",
+        "topics": [
+          "Current events", "Everyday observations in scientific aspects", "India and neighboring countries",
+          "History", "Culture", "Geography", "Economic Scene", "General Polity",
+          "Indian Constitution", "Scientific Research"
+        ]
+      },
+      "QuantitativeAptitude": {
+        "description": "Tests ability of appropriate use of numbers and number sense.",
+        "topics": [
+          "Computation of whole numbers, decimals, fractions", "Relationships between numbers",
+          "Percentage", "Ratio and Proportion", "Square roots", "Averages", "Interest", "Profit & Loss",
+          "Discount", "Partnership Business", "Mixture and Allegation", "Time and distance", "Time & work",
+          "Basic algebraic identities of School Algebra", "Elementary surds", "Graphs of Linear Equations",
+          "Triangle and its various kinds of centres", "Congruence and similarity of triangles", "Circle and its chords, tangents",
+          "Angles subtended by chords of a circle", "Common tangents to two or more circles", "Quadrilaterals",
+          "Regular Polygons", "Right Prism", "Right Circular Cone", "Right Circular Cylinder", "Sphere", "Hemispheres",
+          "Rectangular Parallelepiped", "Regular Right Pyramid with triangular or square base", "Trigonometric ratio",
+          "Degree and Radian Measures", "Standard Identities", "Complementary angles", "Heights and Distances",
+          "Histogram", "Frequency polygon", "Bar diagram & Pie chart"
+        ]
+      },
+      "EnglishLanguageAndComprehension": {
+        "description": "Tests understanding and knowledge of English Language.",
+        "topics": [
+          "Error recognition", "Filling in the blanks", "Vocabulary", "Spellings", "Grammar",
+          "Sentence Structure", "Synonyms", "Antonyms", "Sentence Completion",
+          "Phrases and Idiomatic use of Words", "Comprehension"
+        ]
+      }
+    },
+
+    "RRB NTPC 10+2 Exam - CEN 06/2024": {
+      "Mathematics": [
+        "Number System", "Decimals", "Fractions", "LCM, HCF",
+        "Ratio and Proportions", "Percentage", "Mensuration", "Time and Work",
+        "Time and Distance", "Simple and Compound Interest", "Profit and Loss",
+        "Elementary Algebra", "Geometry and Trigonometry", "Elementary Statistics"
+      ],
+      "GeneralIntelligenceAndReasoning": [
+        "Analogies", "Completion of Number and Alphabetical Series", "Coding and Decoding",
+        "Mathematical Operations", "Similarities and Differences", "Relationships",
+        "Analytical Reasoning", "Syllogism", "Jumbling", "Venn Diagrams", "Puzzle",
+        "Data Sufficiency", "Statement-Conclusion", "Statement-Courses of Action",
+        "Decision Making", "Maps", "Interpretation of Graphs"
+      ],
+      "GeneralAwareness": [
+        "Current Events of National and International Importance", "Games and Sports", "Art and Culture of India",
+        "Indian Literature", "Monuments and Places of India", "General Science and Life Science (up to 10th CBSE)",
+        "History of India and Freedom Struggle", "Physical, Social and Economic Geography of India and World",
+        "Indian Polity and Governance", "General Scientific and Technological Developments",
+        "UN and Other important World Organizations", "Environmental Issues", "Basics of Computers and Computer Applications",
+        "Common Abbreviations", "Transport Systems in India", "Indian Economy", "Famous Personalities",
+        "Flagship Government Programs", "Flora and Fauna of India", "Important Government and Public Sector Organizations"
+      ]
+    }
+  }
+}
+

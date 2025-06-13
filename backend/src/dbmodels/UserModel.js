@@ -28,6 +28,9 @@ const userSchema = new Schema(
         },
         refreshToken: {
             type: String
+        },
+        googleRefreshToken: {
+            type: String
         }
     }
 )

@@ -35,21 +35,31 @@ function AdminMenuLoaderButton() {
 const subjectsAndDetailsLoader = async () => {
     return;
 }
-export const refreshAccessToken = async (username) => {
+export const refreshAccessToken = async () => {
     let response;
     try {
-        response = await fetch(`http://localhost:8000/refresh-access-token`, {
-            method: "GET",
+        response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/refresh-access-token`, {
+            method: "POST",
             credentials: "include",
-            body: username
+            // body: username
         })
+        if(!response.ok){
+            const eror = await response.text()
+            alert(eror)
+            return null
+        }else{
+            alert("refresh access in frontend reciev ok")
+            const data = await response.json()
+            return data.username
+        }
     } catch (error) {
-        console.log("hi")
+        alert("refresh access token frontend function got error")
         console.error(error)
         return null
     }
-    return response.username
+    
 }
+
 
 class CreateGoogleCloudbase {
     #retryCount = 0
@@ -62,7 +72,7 @@ class CreateGoogleCloudbase {
         this.username = username
     }
     async create() {
-        const response = await fetch(`http://localhost:8000/creategooglecloudbase?username=${this.username}`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/creategooglecloudbase?username=${this.username}`, {
             method: "GET",
             credentials: "include"
         });
@@ -142,7 +152,7 @@ export const uploadfile = async (googlecloudbaseid, file, username, virtualParen
     formData.append("file", file);
 
 
-    const responseStatus = await fetch(`http://localhost:8000/uploadfile?parentFolderId=${googlecloudbaseid}&username=${username}&virtualParent=${encodeURIComponent(virtualParent)}`, {
+    const responseStatus = await fetch(`${import.meta.env.VITE_BACKEND_URL}/uploadfile?parentFolderId=${googlecloudbaseid}&username=${username}&virtualParent=${encodeURIComponent(virtualParent)}`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -173,7 +183,7 @@ export const uploadfile = async (googlecloudbaseid, file, username, virtualParen
 
 }
 export const refreshGoogleAccessToken = async () => {
-    const response = await fetch("http://localhost:8000/refresh-google-access-token", {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/refresh-google-access-token`, {
         method: "POST",
         credentials: "include"
     })
@@ -190,8 +200,10 @@ export const refreshGoogleAccessToken = async () => {
 
 
 const AdminDashboard = () => {
-    const [file, setFile] = useState(null)
-    const [googlecloudbaseid, setgooglecloudbaseid] = useState("")
+    // alert("ye alert hua admin dashboard se")
+    // console.log("ha log hua")
+     
+     const [googlecloudbaseid, setgooglecloudbaseid] = useState("")
 
     const navigate = useNavigate()
     const location = useLocation();
@@ -221,7 +233,7 @@ const AdminDashboard = () => {
 
 
     const logoutButton = async () => {
-        const response = await fetch("http://localhost:8000/usernamelogout",
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
             {
                 method: "POST",
                 credentials: "include"
@@ -287,9 +299,7 @@ const AdminDashboard = () => {
                     <div className="admin-dashboard-body-mid">
                         <div className='subjectsdiv'>
                             <section>
-                                <button onClick={() => { uploadfile(googlecloudbaseid, file, username, virtualparent.current?.value) }}>Subjects</button>
-                                <input type="text" name="" ref={virtualparent} id="" />
-                                <input type="file" name="" id="" onChange={handleFileChange} />
+                                
                             </section>
                             <ul style={{ display: "flex" }}>
                                 <div></div>

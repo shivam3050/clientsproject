@@ -31,6 +31,23 @@ function verifyRefreshToken(refreshToken) {
         return null
     }
 }
+async function verifyGoogleAccessToken(googleAccessToken) {
+    try {
+        const testDriveAccess = await fetch("https://www.googleapis.com/drive/v3/about?fields=user", {
+            headers: {
+                Authorization: `Bearer ${googleAccessToken}`
+            }
+        });
+        if (!testDriveAccess.ok) {
+            return null;
+        }
+        // console.log(await testDriveAccess.json())
+        return testDriveAccess
+    } catch (error) {
+        console.log(error)
+        return null
+    }
+}
 
 async function findUserByUsername(username) {
     try {
@@ -50,7 +67,7 @@ function generateAccessToken(username) {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: "10h"
+            expiresIn: "1m"
         }
     );
     return accessToken
@@ -68,7 +85,7 @@ function generateRefreshToken(username) {
     return refreshToken
 }
 
-async function updateRefreshTokenInDatabase(username, newRefreshToken) {
+async function updateRefreshTokensInDatabase(username, newRefreshToken, newGoogleRefreshToken) {
     try {
         const user = await User.findOneAndUpdate(
             {
@@ -76,7 +93,8 @@ async function updateRefreshTokenInDatabase(username, newRefreshToken) {
             },
             {
                 $set: {
-                    refreshToken: newRefreshToken
+                    refreshToken: newRefreshToken,
+                    googleRefreshToken: newGoogleRefreshToken
                 }
             }
         )
@@ -86,7 +104,7 @@ async function updateRefreshTokenInDatabase(username, newRefreshToken) {
     }
 }
 
-async function unsetRefreshTokenInDatabase(username) {
+async function unsetRefreshTokensInDatabase(username) {
     try {
         const user = await User.findOneAndUpdate(
             {
@@ -94,7 +112,8 @@ async function unsetRefreshTokenInDatabase(username) {
             },
             {
                 $unset: {
-                    refreshToken: 1
+                    refreshToken: 1,
+                    googleRefreshToken: 1
                 }
             }
         )
@@ -176,26 +195,28 @@ connectDB()
             //input body username
             //output username fullname accessToken
             const refreshToken = req.cookies?.refreshToken
-            const username = req.body.username
+            // const username = req.body.username
 
             if (!refreshToken) {
+                console.log("refresh token not found")
                 return res.status(404).send("refresh token not found")
             }
             const status = verifyRefreshToken(refreshToken)
             if (!status) {
+                console.log("Invalid refresh token")
                 return res.status(401).send("Invalid refresh token")
             }
 
-            let user = await findUserByUsername(username)
+            let user = await findUserByUsername(status.username)
             if (!user) {
-
+                console.log("User not found in db")
                 return res.status(404).send("User not found in db")
             }
             const newRefreshToken = generateRefreshToken(user.username)
 
-            user = await updateRefreshTokenInDatabase(user.username, newRefreshToken)
+            user = await updateRefreshTokensInDatabase(user.username, newRefreshToken)
             if (!user) {
-
+                console.log("you need to manually login")
                 return res.status(501).send("you need to manually login")
             }
 
@@ -204,12 +225,13 @@ connectDB()
                 httpOnly: true,
                 secure: true
             }
+            console.log("generated new access token")
             return res
                 .status(200)
                 .cookie("accessToken", newAccessToken, options)
                 .cookie("refreshToken", newRefreshToken, options)
                 .json({
-                    username: username,
+                    username: user.username,
                     fullname: user.fullname,
                     accessToken: newAccessToken
                 })
@@ -293,24 +315,14 @@ connectDB()
                 if (user.password === password) {
                     console.log("password is also correct")
 
-                    const newAccessToken = generateAccessToken(username)
-                    const newRefreshToken = generateRefreshToken(username)
+                    // const newAccessToken = generateAccessToken(username)
+                    // const newRefreshToken = generateRefreshToken(username)
 
                     const options = {
                         httpOnly: true,
                         secure: true
                     }
-                    // authUrl = "/testapi"
-                    // res.redirect(authUrl)
-                    // res
-                    //     .status(200)
-                    //     .cookie("accessToken", newAccessToken, options)
-                    //     .cookie("refreshToken", newRefreshToken, options)
-                    // .json({
-                    //     username: username,
-                    //     fullname: user.fullname,
-                    //     accessToken: newAccessToken
-                    // })
+
                     req.session.tempUser = {
                         username: user.username,      // 🔸 Custom username stored here
                         fullname: user.fullname,
@@ -318,7 +330,6 @@ connectDB()
                     };
                     res.status(200).send("ok");
                     // res.redirect("/testapi")
-                    // res.redirect(`/admindashboard?username=${username}&fullname=${user.fullname}&accessToken=${newAccessToken}`)
                     return;
 
 
@@ -344,7 +355,7 @@ connectDB()
             if (!decodedAccessToken) {
                 return res.status(401).send("expired access token")
             }
-            const user = await unsetRefreshTokenInDatabase(decodedAccessToken.username)
+            const user = await unsetRefreshTokensInDatabase(decodedAccessToken.username)
             if (!user) {
                 return res.status(404).send("user not found on db")
             }
@@ -369,41 +380,63 @@ connectDB()
 
         app.post("/adminautologin", async (req, res) => {
             const comingAccessToken = await req.cookies?.accessToken
+            const comingGoogleAccessToken = await req.cookies?.googleAccessToken
             if (!comingAccessToken) {
                 res.status(404).send("Access token is not available")
                 return;
             }
+            if (!comingGoogleAccessToken) {
+                res.status(404).send("Google access token is not available")
+                return;
+            }
             const decodedAccessToken = verifyAccessToken(comingAccessToken)
+            // console.log(JSON.stringify(decodedAccessToken))
             if (!decodedAccessToken) {
+                console.log("expired access token")
                 return res.status(401).send("expired access token")
             }
             const user = await findUserByUsername(decodedAccessToken.username)
             if (!user) {
                 return res.status(404).send("User not found in db")
             }
-            const newAccessToken = generateAccessToken(user.username)
-            const newRefreshToken = generateRefreshToken(user.username)
-            const updatedUser = await updateRefreshTokenInDatabase(user.username, newRefreshToken)
-            if (!updatedUser) {
-                return res.status(501).send("Error in updating the refresh token in user database")
-            }
-            const options = {
-                httpOnly: true,
-                secure: true
-            }
-            return res
-                .status(200)
-                .cookie("accessToken", newAccessToken, options)
-                .cookie("refreshToken", newRefreshToken, options)
-                .json({
-                    username: updatedUser.username,
-                    fullname: updatedUser.fullname,
-                    accessToken: newAccessToken
-                })
+
+            req.session.tempUser = {
+                username: user.username,      // 🔸 Custom username stored here
+                fullname: user.fullname,
+            };
+            console.log("ok send kr dia gya adminautologin se")
+            res.status(200).send("ok");
+            return
+
         });
+        app.get("/test-google-access-token", async (req, res) => {
+            console.log("test google called")
+            const comingGoogleAccessToken = req.cookies?.googleAccessToken
+            if (!comingGoogleAccessToken) {
+                console.log("google access token is not available test google access token")
+                return res.status(404).send("google access token is not available test google access token")
+            }
+            const testDriveAccess = await verifyGoogleAccessToken(comingGoogleAccessToken)
+            if (!testDriveAccess) {
+                console.log("google access token has been expired")
 
+                return res.status(401).send("google access token has been expired")
+            }
+            const frontendURL = process.env.FRONTEND_URL;
+            const tempUser = req.session.tempUser
+            console.log("test- google - access - token se bhi ok send kr dia gya")
+            res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+            res.setHeader("Access-Control-Allow-Credentials", "true");
 
-        app.get("/testapi", async (req, res) => {
+            // return res.redirect(`${frontendURL}/admindashboard?username=${encodeURIComponent(tempUser.username)}&fullname=${encodeURIComponent(tempUser.fullname)}`);
+            return res.json({
+                success: true,
+                redirectUrl: `${frontendURL}/admindashboard?username=${tempUser.username}&fullname=${tempUser.fullname}`
+            });
+
+        })
+
+        app.get("/first-google-login-redirector", async (req, res) => {
             const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
             const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
             // const REDIRECT_URI = 'https://clientsprojectfrontend.onrender.com/';
@@ -423,7 +456,7 @@ connectDB()
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 
 
-            res.redirect(authUrl);
+                res.redirect(authUrl);
             return;
 
         })
@@ -453,7 +486,9 @@ connectDB()
             });
 
             const tokenData = await tokenResponse.json();
-            console.log("Token response:", tokenData);
+            const newGoogleAccessToken = tokenData.access_token
+            const newGoogleRefreshToken = tokenData.refresh_token
+            // console.log("Token response:", tokenData);
 
             const tempUser = req.session.tempUser;
             if (!tempUser) return res.status(401).send("Session expired");
@@ -461,17 +496,21 @@ connectDB()
             const appAccessToken = generateAccessToken(tempUser.username);
             const appRefreshToken = generateRefreshToken(tempUser.username);
 
+            const updatedUser = await updateRefreshTokensInDatabase(tempUser.username, appRefreshToken, newGoogleRefreshToken)
+            if (!updatedUser) {
+                return res.status(404).send("user not in db while updating tokens in db")
+            }
 
             const options = {
                 httpOnly: true,
                 secure: true
             }
-            const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const frontendURL = process.env.FRONTEND_URL;
             res.status(200)
                 .cookie("accessToken", appAccessToken, options)
                 .cookie("refreshToken", appRefreshToken, options)
-                .cookie("googleAccessToken", tokenData.access_token, options)
-                .cookie("googleRefreshToken", tokenData.refresh_token, options)
+                .cookie("googleAccessToken", newGoogleAccessToken, options)
+                .cookie("googleRefreshToken", newGoogleRefreshToken, options)
             // .json({ access_token: tokenData.access_token })
             res.redirect(`${frontendURL}/admindashboard?username=${encodeURIComponent(tempUser.username)}&fullname=${encodeURIComponent(tempUser.fullname)}`); console.log("i sent it")
             // res.send("ok ok"||"i have changed permissions of file")
@@ -489,16 +528,15 @@ connectDB()
             try {
                 response = await fetch("https://oauth2.googleapis.com/token", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: new URLSearchParams({
-                        client_id: process.env.GOOGLE_CLIENT_ID,
-                        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+                        client_id: CLIENT_ID,
+                        client_secret: CLIENT_SECRET,
                         refresh_token: comingGoogleRefreshToken,
                         grant_type: "refresh_token"
-                    })
-                })
+                    }),
+                });
+
             } catch (error) {
                 console.log("google refresh token expired do sign in again")
                 return res.status(401).send("google refresh token expired do sign in again")
@@ -513,10 +551,9 @@ connectDB()
                 .status(200)
                 .cookie("googleAccessToken", data.access_token)
                 .cookie("googleRefreshToken", data.refresh_token)
-                .json({ newGoogleAccessToken: data.access_token, newGoogleRefreshToken: data.refresh_token })
+                .json({ newGoogleAccessToken: data.access_token, newGoogleRefreshToken: data.refresh_token || comingGoogleRefreshToken })
 
         })
-
 
         app.get("/creategooglecloudbase", async (req, res) => {
             // const googleAccessToken = req.cookies?.googleAccessToken
@@ -594,11 +631,6 @@ connectDB()
 
         })
 
-
-
-
-
-
         app.post("/uploadfile", async (req, res) => {  // mycode
             // const accesstoken = req.cookies?.googleAccessToken;
             // const parentfolderid = req.query?.parentFolderId;
@@ -612,21 +644,29 @@ connectDB()
 
             console.log("triggered")
             async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
-                const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${accessToken}`,
-                        "Content-Type": "application/json; charset=UTF-8",
-                        "X-Upload-Content-Type": req.headers['x-mime-type'],
-                        "X-Upload-Content-Length": req.headers['x-file-size'],
-                    },
-                    body: JSON.stringify({
-                        name: path.basename(fileName),
-                        parents: [parentFolderId]
-                    })
-                });
+                let response;
+                try {
+                    response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Content-Type": "application/json; charset=UTF-8",
+                            "X-Upload-Content-Type": req.headers['x-mime-type'],
+                            "X-Upload-Content-Length": req.headers['x-file-size'],
+                        },
+                        body: JSON.stringify({
+                            name: path.basename(fileName),
+                            parents: [parentFolderId]
+                        })
+                    });
+                    if (!response.ok) {
+                        return null
+                    }
+                } catch (error) {
+                    return null
+                }
 
-                if (!response.ok) throw new Error("Failed to initiate resumable upload");
+
 
                 const uploadUrl = response.headers.get("location");
                 return uploadUrl;
@@ -644,11 +684,13 @@ connectDB()
 
             let uploadUrl;
 
-            try {
-                uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
-            } catch (error) {
-                return res.status(401).send("Failed to create upload link")
+
+
+            uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
+            if (!uploadUrl) {
+                return res.status(401).send("google access to expired so upload url cannot be created")
             }
+
 
 
 

@@ -1,4 +1,4 @@
-import AdminBodySignIn from "./AdminBody";
+import AdminBody from "./AdminBody";
 // import { useNavigate } from "react-router-dom";
 import "./Admin.css"
 
@@ -24,6 +24,8 @@ function MenuLoaderButton (){
       elementAsideAverlay.style.zIndex = 1;
 
       isMenuAsideOn = true;
+
+      console.log("hiiiiiiiiiiiiiiiii i printed")
     }
     
 }
@@ -64,7 +66,7 @@ const Adminn = ()=>{
       <section onClick={()=>{MenuLoaderButton()}} className='admin-aside-overlay'>
       </section>
       <main className="admin-body">
-        <AdminBodySignIn/>
+        <AdminBody/>
       </main>
       <footer className="admin-footer">
       footer

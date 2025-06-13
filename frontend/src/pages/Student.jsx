@@ -51,8 +51,8 @@ const Studentt = () => {
       </div>
 
       <div>
-        <select className="studentpage-all-courses-selectbar" value="Courses">
-          <option value="">Courses</option>
+        <select className="studentpage-all-courses-selectbar">
+          <option>Courses</option>
           <option>Important events of national and international importance.</option>
           <option>History of India and Indian National Movement.</option>
           <option>Indian and World Geography – Physical, Social and Economic Geography of India and the World.</option>

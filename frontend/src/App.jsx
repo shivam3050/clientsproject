@@ -165,6 +165,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { AdminSubjectDetail } from "./pages/AdminSubjectDetail";
 import { AdminSubjectCardGrid } from "./pages/AdminSubjectCardGrid";
 import { StudentSubjectDetail } from "./pages/StudentSubjectDetail";
+import { StudentSubjectBranchDetail } from "./pages/StudentSubjectBranchDetail";
+import { StudentSubjectDetailBranchList } from "./pages/StudentSubjectDetailBranchList";
 // import { StudentSubjectCardGrid } from "./pages/StudentSubjectCardGrid";
 // import StudentPage from './pages/StudentPage'
 // import AdminPage from './pages/AdminPage'
@@ -180,7 +182,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={(<Studentt />)} >
-          <Route index element={<div style={{ color: "red" }}>This is the outlets root</div>} />
+          <Route index element={<div></div>} />
           <Route path=":subject" element={<StudentSubjectDetail />} />
         </Route>
 
@@ -194,8 +196,11 @@ function App() {
 
 
         <Route path="/student" element={(<Studentt />)} >
-          <Route index element={<div style={{ color: "red" }}>This is the outlets root</div>} />
-          <Route path=":subject" element={<StudentSubjectDetail />} />  {/*   /student/:x iska matlab hota hai ki ye route ye /student/:x  yha per { x:<providing route> } this can be nested also */}
+          <Route index element={<div ></div>} />
+          <Route path=":subject" element={<StudentSubjectDetail />} >  {/*   /student/:x iska matlab hota hai ki ye route ye /student/:x  yha per { x:<providing route> } this can be nested also */}
+            <Route index element={<StudentSubjectDetailBranchList />} />  {/*   /student/:x iska matlab hota hai ki ye route ye /student/:x  yha per { x:<providing route> } this can be nested also */}
+            <Route path=":branch" element={<StudentSubjectBranchDetail/>}/>
+          </Route>
         </Route>
       </Routes>
     </Router >

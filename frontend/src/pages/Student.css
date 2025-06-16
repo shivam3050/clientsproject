@@ -165,5 +165,8 @@
 
 
 .student-body {
-  height: calc(90px + 1%);
+  /* height: calc(90px + 1%); */
+
+      overflow-y: scroll;
+    height: calc(99% - 90px);
 }

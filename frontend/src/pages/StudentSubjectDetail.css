@@ -66,6 +66,9 @@
 
 
 
+
+
+
 .upload-section {
   display: flex;
   flex-direction: column;
@@ -102,13 +105,16 @@ svg {
 
 .file-list-section {
   margin-top: 20px;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
 }
 
-.file-grid {
+/* .file-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 15px;
-}
+} */
 
 .file-card {
   background-color: #f1f1f1;
@@ -154,4 +160,24 @@ input[type="file"]::file-selector-button:hover {
   color: #2d3436;
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 206, 201, 0.4);
+}
+
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+.file-card {
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 12px;
+  text-decoration: none;
+  color: black;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.file-card:hover {
+  background-color: #e0e0e0;
 }

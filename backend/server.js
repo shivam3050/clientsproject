@@ -1005,7 +1005,7 @@ connectDB()
                         res.status(500).send("Final chunk upload error");
                     }
                 } else {
-                    // If no final chunk, still check if upload completed
+                    
                     res.status(200).send("Upload completed");
                 }
             });
@@ -1024,15 +1024,17 @@ connectDB()
 
 
         app.get("/get-files-list", async (req, res) => {
-            const comingAccessToken = req.cookies?.accessToken
-            // const comingAccessToken = req.query.accesstoken
+
+    
             const virtualparent = req.query.subject
-            if (!comingAccessToken) {
-                return res.status(404).send("No access token available")
-            }
-            const user = await verifyAccessToken(comingAccessToken)
+            const virtualbranch = req.query.branch
+            console.log("triggger hua hai : ",virtualbranch,virtualparent)
+
+
+            const username = "shivam1"
+            const user = await findUserByUsername(username)
             if (!user) {
-                return res.status(401).send("Access token expired")
+                return res.status(401).send("User not found")
             }
             const newUser = await findUserByUsername(user.username)
             if (!newUser) {
@@ -1040,7 +1042,8 @@ connectDB()
             }
             const filesList = await File.find({
                 userid: newUser._id,
-                virtualparent: virtualparent
+                virtualparent: virtualparent,
+                virtualbranch: virtualbranch
             });
             if (!filesList) {
                 return res.status(404).send("no files found")

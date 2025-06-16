@@ -19,6 +19,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
+
+}
+.StudentBody >*{
+    margin: 0px;
+
 }
 
 

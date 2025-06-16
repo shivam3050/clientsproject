@@ -136,43 +136,20 @@
 
 
 import { useRef, useState, useEffect } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Outlet, useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 import "./StudentSubjectDetail.css";
 
 
 
 export const StudentSubjectDetail = () => {
+  const navigate = useNavigate()
   const dynamicRoutes  = useParams(); // cons that this can only give dynamic available routes
 
   const virtualParent = dynamicRoutes.subject
 
 
-  const [branchesList, setBranchesList] = useState(null);
 
-  useEffect(() => {
-
-    if (!virtualParent) {
-      console.warn("virtualParent is not yet available.");
-      return;
-    }
-
-
-
-
-    const virtualBranchesLister = async () => {
-
-      const virtualBranchesListString = await fetch(
-        `http://localhost:8000/get-subject-branch?virtualparent=${encodeURIComponent(virtualParent)}`,
-        { method: "GET" }
-      );
-      if (virtualBranchesListString.ok) {
-        setBranchesList(await virtualBranchesListString.json());
-      }
-    }
-    virtualBranchesLister()
-
-  }, [virtualParent]);
 
   return (
     <div className="student-subjectsdiv-detail">
@@ -181,25 +158,7 @@ export const StudentSubjectDetail = () => {
 
 
       <div className="file-list-section">
-        <h3>Branches</h3>
-        {branchesList ? (
-          
-            <div className="file-grid">
-              {branchesList.map((item, index) => (
-                <a
-                  key={index}
-                  href={`https://drive.google.com/uc?export=download&id=${item.fileid}`}
-                  className="file-card"
-                >
-                  <strong>{item.filename}</strong><br />
-                  <span>&nbsp;Size: {item.filesize} bytes</span>
-                </a>
-              ))}
-            </div>
-         
-        ) : (
-          <p>Loading branches...</p>
-        )}
+        <Outlet />
       </div>
     </div>
   );

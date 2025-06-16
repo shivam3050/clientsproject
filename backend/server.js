@@ -178,7 +178,7 @@ connectDB()
             resave: false,
             saveUninitialized: false,
             cookie: {
-                secure: false,            // only true if you're using HTTPS
+                secure: true,            // only true if you're using HTTPS
                 httpOnly: true,
                 sameSite: 'lax'           // must allow redirects
             }
@@ -215,7 +215,7 @@ connectDB()
             const newAccessToken = generateAccessToken(user.username)
             const options = {
                 httpOnly: true,
-                secure: false
+                secure: true
             }
             return res
                 .status(200)
@@ -296,7 +296,7 @@ connectDB()
 
                     const options = {
                         httpOnly: true,
-                        secure: false
+                        secure: true
                     }
 
                     req.session.tempUser = {
@@ -337,7 +337,7 @@ connectDB()
             }
             const options = {
                 httpOnly: true,
-                secure: false
+                secure: true
             }
             return res
                 .status(200)
@@ -407,7 +407,7 @@ connectDB()
 
         app.get("/first-google-login-redirector", async (req, res) => {
             const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-            const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+            // const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
             // const REDIRECT_URI = 'https://clientsprojectfrontend.onrender.com/';
             const REDIRECT_URI = 'http://localhost:8000/oauth2callback';
             // let scope = ['email', 'profile'].join(' ');
@@ -470,7 +470,7 @@ connectDB()
 
             const options = {
                 httpOnly: true,
-                secure: false
+                secure: true
             }
             const frontendURL = process.env.FRONTEND_URL;
             res.status(200)

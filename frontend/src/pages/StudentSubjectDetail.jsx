@@ -7,7 +7,7 @@ import "./StudentSubjectDetail.css";
 
 
 export const StudentSubjectDetail = () => {
-  const navigate = useNavigate()
+
   const dynamicRoutes  = useParams(); // cons that this can only give dynamic available routes
 
   const virtualParent = dynamicRoutes.subject

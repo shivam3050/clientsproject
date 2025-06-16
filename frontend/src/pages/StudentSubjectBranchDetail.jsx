@@ -15,7 +15,7 @@ const StudentSubjectBranchDetail = () => {
       return
     }
     const fileListerInUseEffect = async () => {
-      const filesListString = await fetch(`${process.env.BACKEND_URL}/get-files-list?subject=${encodeURIComponent(virtualParent)}&branch=${encodeURIComponent(virtualBranch)}`, {
+      const filesListString = await fetch(`${process.env.VITE_BACKEND_URL}/get-files-list?subject=${encodeURIComponent(virtualParent)}&branch=${encodeURIComponent(virtualBranch)}`, {
         method: "GET"
       })
       if (!filesListString.ok) {

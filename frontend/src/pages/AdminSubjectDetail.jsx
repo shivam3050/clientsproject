@@ -76,7 +76,7 @@ export const AdminSubjectDetail = () => {
 
     const fileListerInUseEffect = async () => {
       const fileListString = await fetch(
-        `http://localhost:8000/get-files-list?subject=${encodeURIComponent(virtualParent)}`,
+        `${process.env.BACKEND_URL}/get-files-list?subject=${encodeURIComponent(virtualParent)}`,
         { method: "GET", credentials: "include" }
       );
       if (fileListString.ok) {

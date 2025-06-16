@@ -24,7 +24,7 @@ const StudentSubjectDetailBranchList = (props) => {
         const virtualBranchesLister = async () => {
     
           const virtualBranchesListString = await fetch(
-            `http://localhost:8000/get-subject-branch?virtualparent=${encodeURIComponent(virtualParent)}`,
+            `${process.env.BACKEND_URL}/get-subject-branch?virtualparent=${encodeURIComponent(virtualParent)}`,
             { method: "GET" }
           );
           if (virtualBranchesListString.ok) {

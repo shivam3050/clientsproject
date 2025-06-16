@@ -10,7 +10,6 @@ import { User } from './src/dbmodels/UserModel.js';
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import { PassThrough } from "stream"
-import fs, { access } from "fs"
 import path from "path"
 import { File } from './src/dbmodels/FilesSchema.js';
 
@@ -394,7 +393,7 @@ connectDB()
             }
             const frontendURL = process.env.FRONTEND_URL;
             const tempUser = req.session.tempUser
-            res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+            res.setHeader("Access-Control-Allow-Origin", process.env.FRONTENT_URL);
             res.setHeader("Access-Control-Allow-Credentials", "true");
 
             // return res.redirect(`${frontendURL}/admindashboard?username=${encodeURIComponent(tempUser.username)}&fullname=${encodeURIComponent(tempUser.fullname)}`);
@@ -409,7 +408,7 @@ connectDB()
             const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
             // const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
             // const REDIRECT_URI = 'https://clientsprojectfrontend.onrender.com/';
-            const REDIRECT_URI = 'http://localhost:8000/oauth2callback';
+            const REDIRECT_URI = `${process.env.BACKEND_URL}/oauth2callback`;
             // let scope = ['email', 'profile'].join(' ');
             // let scope = "https://www.googleapis.com/auth/drive.metadata.readonly";
             let scope = "https://www.googleapis.com/auth/drive"
@@ -438,7 +437,7 @@ connectDB()
 
             const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
             const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-            const REDIRECT_URI = 'http://localhost:8000/oauth2callback';  // must match the one used earlier
+            const REDIRECT_URI = `${process.env.BACKEND_URL}/oauth2callback`;  // must match the one used earlier
 
             // Exchange code for access token
             const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {  // THIS GIVES ACCESS FROM GOOGLE

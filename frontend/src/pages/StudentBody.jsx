@@ -9,7 +9,7 @@ const StudentBody = () => {
 
     useEffect(() => {
         const fetchSubFoldersFunc = async () => {
-            const subjects = await fetch(`${process.env.BACKEND_URL}/get-subjects-list`, {
+            const subjects = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-subjects-list`, {
                 method: "GET"
             })
             if (!subjects) {

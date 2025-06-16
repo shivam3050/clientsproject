@@ -12,12 +12,10 @@ class AutoLogin {
         })
         if (response.status === 401) {
             const error = await response.text()
-            // alert(error + " this will be improved")
             if (this.#googleRetryCount < 2) {
                 this.#googleRetryCount += 1;
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
-                    // alert("your google refresh token is also expired")
                     return false
                 } else {
                     return await this.testGoogleAccessTokenWithGoogleDriveAccess()
@@ -27,12 +25,10 @@ class AutoLogin {
         }
         if (!response.ok) {
             const error = await response.text()
-            // alert(error)
             return false
         } else {
             const data = await response.json();
             if (data.success && data.redirectUrl) {
-                // alert("yes google access token is well now redirecting to dashboard")
                 window.location.href = data.redirectUrl;
 
                 this.#googleRetryCount = 0
@@ -46,7 +42,6 @@ class AutoLogin {
     }
     #normalRetryCount = 0;
     async testAccessTokenWithLoginAccess() {
-        // alert("auto login front trigger hua hai with retry counnt:  " + this.#normalRetryCount)
 
         const loggedInUser = await fetch(`${import.meta.env.VITE_BACKEND_URL}/adminautologin`, {
             method: "POST",
@@ -55,16 +50,13 @@ class AutoLogin {
 
         if (loggedInUser.status === 401) {
             const error = await loggedInUser.text()
-            // alert(loggedInUser.status)
             if (this.#normalRetryCount < 2) {
                 this.#normalRetryCount += 1;
 
                 const flag = await refreshAccessToken()
                 if (!flag) {
-                    // alert("refresh token has been expired you need to manually login")
                     return;
                 } else {
-                    // alert("get new access token sucess now calling auto login again")
                     return await this.testAccessTokenWithLoginAccess()
                 }
             }
@@ -75,7 +67,6 @@ class AutoLogin {
 
             const error = await loggedInUser.text()
 
-            // alert(error)
             this.#normalRetryCount = 0
             return false;
         } else {
@@ -109,13 +100,11 @@ const AdminBody = () => {
     }
 
     useEffect(() => {
-        // alert("useeffect auto login wala call hua")
         autoLoginHandler()
     }, [])
 
 
     const handleLogin = async () => {
-        // alert("clicked to username login fetch")
 
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogin`,
             {

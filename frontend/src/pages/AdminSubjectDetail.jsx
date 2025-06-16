@@ -1,138 +1,3 @@
-// import { useRef, useState , useEffect } from "react";
-// import { useOutletContext, useParams } from "react-router-dom";
-// import { Uploadfile } from "./AdminDashboard";
-// import "./AdminSubjectDetail.css"
-
-// async function handleUpload(googlecloudbaseid, file, username, progressRef, virtualParent, uploadLog) {
-
-//   const svg = progressRef.current;
-//   const circle = svg.children[0]
-
-//   const totalLength = 2 * Math.PI * 34;
-
-
-//   circle.style.transition = "stroke-dashoffset 0.1s ease-in";
-//   let oneTenth = parseInt(`${Math.round(totalLength / 10)}`)
-//   circle.style.strokeDashoffset = "0";
-//   circle.style.strokeDasharray = `${oneTenth}`;
-
-//   let i = 0
-
-//   svg.style.display = "flex";
-//   svg.style.visibility = "visible";
-//   i++
-//   circle.style.strokeDashoffset = `${oneTenth * i}`
-
-//   const uploadingAnimation = setInterval(() => {
-
-//     i++
-//     circle.style.strokeDashoffset = `${oneTenth * i}`
-
-//   }, 500);
-
-
-//   try {
-//     uploadLog.current.textContent = ""
-//     const Uploader = new Uploadfile();
-//     const res = await Uploader.uploadfile(googlecloudbaseid, file, username, virtualParent);
-//     if (res) {
-//       uploadLog.current.textContent = "upload successfully"
-//     }
-//   } catch (error) {
-//     uploadLog.current.textContent = "upload failed"
-
-//   } finally {
-//     clearInterval(uploadingAnimation)
-//     svg.style.display = "none";
-//   }
-
-
-// }
-
-// export const AdminSubjectDetail = () => {
-//   const [googlecloudbaseid, username] = useOutletContext();
-//   const params = useParams();
-//   const virtualParent = params.subject;
-//   const fileRef = useRef();
-//   const progressRef = useRef();
-//   const uploadLog = useRef()
-//   const [fileslist,setFileslist] = useState(null)
-
-
-//   const fileLister = async () => {
-//     const fileListString = await fetch(`http://localhost:8000/get-files-list?subject=${encodeURIComponent(virtualParent)}`,
-//       {
-//         method: "GET",
-//         credentials: "include"
-//       })
-
-//     if(!fileListString.ok){
-//       return null
-//     }
-//     const fileList = await fileListString.json()
-//     return fileList
-//   }
-
-
-//   useEffect(() => {
-//     async function fileListerInUseEffect(){
-//       setFileslist(await fileLister())
-//     }
-//     fileListerInUseEffect()
-
-//   }, [])
-
-
-
-//   return (
-//     <div style={{ display: "flex", flexDirection: "column", padding: "10px", }} className="admin-subjectsdiv-detail">
-//       <div className="upload-and-delete-section"> hiiiiiii</div>
-//       <div className="uploaded-files-in-db">
-//         {
-//           fileslist ? (
-//             fileslist.map((item)=>{
-//               return <a href={`https://drive.google.com/uc?export=download&id=${item.fileid}`}>
-
-//                 <span>{item.filename} </span> 
-//                 <span> Size: </span>
-//                 <span>{item.filesize}</span>
-//                 </a>
-//             })
-//           ) : (<div>Loading Files</div>)
-//         }
-//       </div>
-
-//     </div>
-//   );
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import { useRef, useState, useEffect } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
@@ -203,15 +68,11 @@ export const AdminSubjectDetail = () => {
 
 
     if (!virtualParent) {
-      console.warn("virtualParent is not yet available.");
+    
       return;
     }
-    // if (!virtualBranchObject.current.value) {
-    //   console.warn("virtualParent is not yet available.");
-    //   return;
-    // }
-    const radios = document.getElementsByName('branch');
-    console.log(radios.value, "radios are here")
+
+
 
     const fileListerInUseEffect = async () => {
       const fileListString = await fetch(

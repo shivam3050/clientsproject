@@ -1,10 +1,10 @@
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
 import "./AdminDashboard.css"
-import { useState, useRef } from 'react';
-import { AdminSubjectCard } from './AdminSubjectCard';
-import { Routes, Route } from "react-router-dom"
-import { AdminSubjectDetail } from './AdminSubjectDetail';
+import { useState } from 'react';
+// import { AdminSubjectCard } from './AdminSubjectCard';
+// import { Routes, Route } from "react-router-dom"
+// import { AdminSubjectDetail } from './AdminSubjectDetail';
 
 
 let isMenuAsideOn = false;
@@ -62,15 +62,15 @@ export const refreshAccessToken = async () => {
         })
         if (!response.ok) {
             const eror = await response.text()
-            // alert(eror)
+            // (eror)
             return null
         } else {
-            // alert("refresh access in frontend reciev ok")
+            // ("refresh access in frontend reciev ok")
             const data = await response.json()
             return data.username
         }
     } catch (error) {
-        // alert("refresh access token frontend function got error")
+        
         console.error(error)
         return null
     }
@@ -96,14 +96,14 @@ class CreateGoogleCloudbase {
         if (response.status === 401) {
             status = response.status
             const err = await response.text()
-            // alert(err)
+           
 
             if (this.#retryCount < 2) {
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
                     return null
                 } else {
-                    // alert("creation retrying...")
+                  
                     const folderid = await this.create()
                     return folderid
                 }
@@ -117,7 +117,7 @@ class CreateGoogleCloudbase {
         if (!response.ok) {
             status = response.status
             const invalidMsg = await response.text()
-            // alert(invalidMsg)
+         
             return null
         }
 
@@ -150,7 +150,7 @@ export class Uploadfile {
 
     #retryUpload = 0
     async uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch) {
-        // alert("core uploader call hua")
+       
         if (!googlecloudbaseid) {
             alert("Google cloudbase is absent.")
             return null
@@ -167,8 +167,7 @@ export class Uploadfile {
         }
 
 
-        // const formData = new FormData();
-        // formData.append("file", file);
+
 
 
         const responseStatus = await fetch(`${import.meta.env.VITE_BACKEND_URL}/uploadfile?parentFolderId=${googlecloudbaseid}&username=${username}&virtualParent=${encodeURIComponent(virtualParent)}&virtualBranch=${encodeURIComponent(virtualBranch)}`, {
@@ -186,12 +185,12 @@ export class Uploadfile {
             body: file
         })
         if (responseStatus.status === 401) {
-            alert("retryinng")
+           
             if (this.#retryUpload < 2) {
                 this.#retryUpload += 1
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
-                    // alert("google refresh token is also expired")
+                    // ("google refresh token is also expired")
 
                     return null
                 } else {
@@ -202,18 +201,18 @@ export class Uploadfile {
             return null
         }
         if (!responseStatus.ok) {
-            alert("file not uploaded")
+            
             console.log(responseStatus.status)
             return null
         }
         if (responseStatus.status === 200) {
             const info = await responseStatus.json();
-            // alert(info.virtualparent)
-            // alert(info.totalSize)
-            // alert("Successfully uploaded");
+            // (info.virtualparent)
+            // (info.totalSize)
+            // ("Successfully uploaded");
             this.#retryUpload = 0;
             info.msg = "Uploaded Successfullyy";
-            // alert(JSON.stringify(info))
+            // (JSON.stringify(info))
             return info
         }
         this.#retryUpload = 0;
@@ -227,8 +226,7 @@ export class Uploadfile {
 
 
 const AdminDashboard = () => {
-    // alert("ye alert hua admin dashboard se")
-    // console.log("ha log hua")
+ 
 
     const [googlecloudbaseid, setgooglecloudbaseid] = useState("")
     const [username, setUsername] = useState("")
@@ -237,7 +235,7 @@ const AdminDashboard = () => {
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const fullname = params.get("fullname");
-    // alert(fullname)
+   
 
 
 
@@ -252,8 +250,6 @@ const AdminDashboard = () => {
             }
             const Cloudbase = new CreateGoogleCloudbase(username)
             setgooglecloudbaseid(await Cloudbase.create())
-            // setgooglecloudbaseid(cloudbaseId)
-            // alert(googlecloudbaseid+"idddd")
             return
         }
         initializeFolderCreation()
@@ -271,26 +267,25 @@ const AdminDashboard = () => {
         if (response.status === 401) {
             refreshGoogleAccessToken()
                 .then((flag) => {
-                    if(!flag){navigate("/admin");alert("sign in again and then sign out")}
+                    if(!flag){navigate("/admin")}
                     else {fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
                         {
                             method: "POST",
                             credentials: "include"
                         }
-                    ).then(()=>{navigate("/admin");alert("sign outed")})}
+                    ).then(()=>{navigate("/admin");("sign outed")})}
                 })
                 
 
         }
         if (response.status != 200) {
             const responseText = await response.text()
-            // alert(responseText)
-            console.log(responseText)
+
             return;
         } else {
             const msg = await response.text()
             navigate("/admin")
-            alert(msg)
+          
             return;
         }
 
@@ -330,7 +325,6 @@ const AdminDashboard = () => {
                         </div>
                         <div style={{ display: "flex" }} className="profiledetailshort">
                             <span ><h2>{username}</h2><h3 style={{ color: "#4361ee" }}>Administrator</h3></span>
-                            {/* <span style={{ display: "flex", alignItems: "center" }}><div style={{ width: "70px", height: "70px", backgroundColor: "#4361ee", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center", color: "white" }}><h3>{fullname.split(" ")[0][0] + fullname.split(" ")[1][0]}</h3></div></span>  */}
                         </div>
                     </span>
                 </header>
@@ -339,24 +333,9 @@ const AdminDashboard = () => {
                     <div className="admin-dashboard-body-top">
                         <input type="search" name="search" id="" placeholder='/search'  />
                     </div>
-                    {/* <div className="admin-dashboard-body-mid"> */}
+            
                         <Outlet context={[googlecloudbaseid, username]} />
-                        {/* <Outlet context={[googlecloudbaseid, username]} /> */}
-                        {/* <div className='subjectsdiv'>
-                            <section>
 
-                            </section>
-                            <ul style={{ display: "flex" }}>
-                                <div><AdminSubjectCard googlecloudbaseid={googlecloudbaseid} username={username} virtualParent="Maths" /></div>
-                                <div><AdminSubjectCard googlecloudbaseid={googlecloudbaseid} username={username} virtualParent="GK" /></div>
-                                <div><AdminSubjectCard googlecloudbaseid={googlecloudbaseid} username={username} virtualParent="Current Affairs" /></div>
-                                <div><AdminSubjectCard googlecloudbaseid={googlecloudbaseid} username={username} virtualParent="English" /></div>
-                                <div><AdminSubjectCard googlecloudbaseid={googlecloudbaseid} username={username} virtualParent="Hindi" /></div>
-                            </ul>
-                        </div> */}
-                        {/* <div className="admin-dashboard-body-aftersubjectsdiv">
-                        </div> */}
-                    {/* </div> */}
 
                 </main>
 

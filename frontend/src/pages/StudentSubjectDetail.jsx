@@ -135,8 +135,8 @@
 
 
 
-import { useRef, useState, useEffect } from "react";
-import { Outlet, useNavigate, useOutletContext, useParams } from "react-router-dom";
+
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 import "./StudentSubjectDetail.css";
 

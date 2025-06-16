@@ -1,9 +1,8 @@
-// import { useOutletContext } from "react-router-dom";
 import { AdminSubjectCard } from "./AdminSubjectCard";
 import "./AdminSubjectCardGrid.css"
 
 export const AdminSubjectCardGrid = () => {
-    // const [googlecloudbaseid, username] = useOutletContext();
+   
 
 
     return (

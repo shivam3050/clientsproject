@@ -2,7 +2,7 @@ import "./AdminSubjectCard.css"
 import { useNavigate } from "react-router-dom"
 
 const AdminSubjectCard = (props) => {
-    // const [googlecloudbaseid, username] = useOutletContext();
+   
     const navigate = useNavigate()
     const handleClick = () => {
         navigate(`/admindashboard/${props.virtualParent}`);

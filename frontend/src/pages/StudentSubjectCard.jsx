@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom"
 
 const StudentSubjectCard = (props) => {
     
-    // const [googlecloudbaseid, username] = useOutletContext();
+
     const navigate = useNavigate()
     const handleClick = () => {
-        // alert(props.virtualParent)
+     
         navigate(`/student/${props.virtualParent}?virtualParent=${encodeURIComponent(props.virtualParent)}`);
     };
 

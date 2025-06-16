@@ -14,7 +14,7 @@ const StudentSubjectDetailBranchList = (props) => {
       useEffect(() => {
     
         if (!virtualParent) {
-          console.warn("virtualParent is not yet available.");
+          
           return;
         }
     
@@ -43,7 +43,7 @@ const StudentSubjectDetailBranchList = (props) => {
             {branchesList ? (
 
                 <div className="file-grid">
-                    {branchesList.map((item, index) => (
+                    {branchesList.map((item, _) => (
                         <div className="file-card" onClick={() => { navigate(`/student/${encodeURIComponent(virtualParent)}/${encodeURIComponent(item)}`) }}>
                             {item}
                         </div>

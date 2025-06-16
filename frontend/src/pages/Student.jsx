@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+
 import "./Student.css"
 import StudentBody from "./StudentBody";
 let isMenuAsideOn = false;

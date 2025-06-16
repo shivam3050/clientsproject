@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./StudentBody.css"
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { StudentSubjectCard } from "./StudentSubjectCard";
 
 const StudentBody = () => {

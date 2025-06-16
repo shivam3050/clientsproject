@@ -2,6 +2,7 @@
   max-width: 1280px;
   margin:  0px;
   padding: 0px;
+  transition: all 0.2s ease-in-out;
   /* text-align: center; */
 }
 

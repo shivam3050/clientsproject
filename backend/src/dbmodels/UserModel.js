@@ -31,6 +31,10 @@ const userSchema = new Schema(
         },
         googleRefreshToken: {
             type: String
+        },
+        fileid: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "File"
         }
     }
 )

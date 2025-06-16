@@ -25,7 +25,6 @@ function MenuLoaderButton (){
 
       isMenuAsideOn = true;
 
-      console.log("hiiiiiiiiiiiiiiiii i printed")
     }
     
 }

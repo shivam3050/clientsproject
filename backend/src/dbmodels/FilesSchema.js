@@ -8,6 +8,7 @@ const filesSchema = new Schema(
         },
         filename:String,
         virtualparent:String,
+        virtualbranch:String,
         userid:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

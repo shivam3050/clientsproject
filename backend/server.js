@@ -9,8 +9,8 @@ import fetch from "node-fetch"
 import { User } from './src/dbmodels/UserModel.js';
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import stream from "stream"
-import fs from "fs"
+import { PassThrough } from "stream"
+import fs, { access } from "fs"
 import path from "path"
 import { File } from './src/dbmodels/FilesSchema.js';
 
@@ -67,9 +67,10 @@ function generateAccessToken(username) {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: "1m"
+            expiresIn: "10h"
         }
     );
+    console.log("access token  :: ", accessToken)
     return accessToken
 }
 function generateRefreshToken(username) {
@@ -122,7 +123,7 @@ async function unsetRefreshTokensInDatabase(username) {
         return null
     }
 }
-async function pushFileInfoInDatabase(userId, fileId, fileName, virtualParent, fileSize) {
+async function pushFileInfoInDatabase(userId, fileId, fileName, virtualParent,virtualBranch, fileSize) {
     try {
         const fileInfo = await File.create(
             {
@@ -130,6 +131,7 @@ async function pushFileInfoInDatabase(userId, fileId, fileName, virtualParent, f
                 fileid: fileId,
                 filename: fileName,
                 virtualparent: virtualParent,
+                virtualbranch: virtualBranch,
                 filesize: fileSize
             }
         )
@@ -223,7 +225,7 @@ connectDB()
             const newAccessToken = generateAccessToken(user.username)
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: false
             }
             console.log("generated new access token")
             return res
@@ -320,7 +322,7 @@ connectDB()
 
                     const options = {
                         httpOnly: true,
-                        secure: true
+                        secure: false
                     }
 
                     req.session.tempUser = {
@@ -361,7 +363,7 @@ connectDB()
             }
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: false
             }
             return res
                 .status(200)
@@ -382,10 +384,12 @@ connectDB()
             const comingAccessToken = await req.cookies?.accessToken
             const comingGoogleAccessToken = await req.cookies?.googleAccessToken
             if (!comingAccessToken) {
+                console.log("Access token is not available")
                 res.status(404).send("Access token is not available")
                 return;
             }
             if (!comingGoogleAccessToken) {
+                console.log("Google access token is not available")
                 res.status(404).send("Google access token is not available")
                 return;
             }
@@ -397,6 +401,7 @@ connectDB()
             }
             const user = await findUserByUsername(decodedAccessToken.username)
             if (!user) {
+                console.log("User not found")
                 return res.status(404).send("User not found in db")
             }
 
@@ -456,7 +461,7 @@ connectDB()
             const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 
 
-                res.redirect(authUrl);
+            res.redirect(authUrl);
             return;
 
         })
@@ -503,7 +508,7 @@ connectDB()
 
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: false
             }
             const frontendURL = process.env.FRONTEND_URL;
             res.status(200)
@@ -562,11 +567,11 @@ connectDB()
             const googleAccessToken = req.cookies?.googleAccessToken
             const username = req.query.username
             if (!username) {
-                return res.status(501).send("No username send")
+                return res.status(404).send("No username send")
             }
             if (!googleAccessToken) {
                 console.log("No google access token send")
-                return res.status(401).send("No google access token send")
+                return res.status(404).send("No google access token send")
             }
 
             const FOLDER_NAME = "AdminCloudBase"
@@ -577,40 +582,38 @@ connectDB()
             }
 
             const query = encodeURIComponent(`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`);
-            let driveResponse;
+
             try {
-                driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
+                const driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, {
                     headers: {
                         Authorization: `Bearer ${googleAccessToken}`
                     }
                 });
-            } catch (error) {
-                console.log("expired token of fetching error")
-                return res.status(401).send("expired token of fetching error")
-
-            }
-
-            let data = await driveResponse.json();
-            if (data.files.length > 1) {
-                return res.status(406).send(`'${data.files[0].id}' many folders already exists`)
-            }
-            if (data.files.length > 0) {
-                console.log("one folder already exits")
-                const folderId = data.files[0].id
-                console.log(typeof folderId, " << typeof folderId")
-                console.log(folderId)
-                const user = await findUserByUsername(username)
-
-                if (!user) {
-                    console.log("HERE I WILL UNDO FOLDER CREATION")
-                    return res.status(405).send("user not found when creating database")
+                if (!driveResponse.ok) {
+                    console.log("expired token of fetching error")
+                    return res.status(401).send("expired token of fetching error")
+                }
+                const data = await driveResponse.json();
+                if (data.files.length > 1) {
+                    return res.status(406).send(`'${data.files[0].id}' many folders already exists`)
+                }
+                if (data.files.length > 0) {
+                    const folderId = data.files[0].id
+                    const user = await findUserByUsername(username)
+                    if (!user) {
+                        console.log("HERE I WILL UNDO FOLDER CREATION")
+                        return res.status(405).send("user not found when creating database")
+                    }
+                    return res.status(200).json({ "folderId": folderId })
                 }
 
-                return res.status(200).json({ "folderId": folderId })
+            } catch (error) {
+                console.log("expired token of fetching error")
+                return res.status(501).send("expired token of fetching error")
+
             }
-            let createFolder;
             try {
-                createFolder = await fetch("https://www.googleapis.com/drive/v3/files", {
+                const createFolder = await fetch("https://www.googleapis.com/drive/v3/files", {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${googleAccessToken}`,
@@ -618,20 +621,15 @@ connectDB()
                     },
                     body: JSON.stringify(folderSchema),
                 });
+                const createdData = await createFolder.json()
+                return res.status(201).json({ folderCreatedId: createdData.id })
             } catch (error) {
                 return res.status(401).send("expired access token")
             }
 
-            const createdData = await createFolder.json()
-            console.log(typeof createdData, " << typeof folderId")
-            console.log(createdData)
-
-            return res.status(201).json({ folderCreatedId: createdData.id })
-
-
         })
 
-        app.post("/uploadfile", async (req, res) => {  // mycode
+        app.post("/uploadfilemy", async (req, res) => {  // mycode
             // const accesstoken = req.cookies?.googleAccessToken;
             // const parentfolderid = req.query?.parentFolderId;
             // const username = req.query?.username
@@ -639,21 +637,26 @@ connectDB()
             // const virtualparent = req.query?.virtualParent
             // const totalSize = parseInt(req.headers['content-length']);
             // const contentType = req.headers['x-mime-type']
+            // console.log("X-Upload-Content-Type : ", req.headers['x-mime-type'])
+            // console.log("X-Upload-Content-Length : ", req.headers['x-file-size'])
 
 
 
-            console.log("triggered")
+            // console.log("triggerededdd")
+
             async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
-                let response;
+                console.log("acces tok goo ", accessToken)
+                // let response;
                 try {
-                    response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+                    const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
                         method: "POST",
                         headers: {
                             "Authorization": `Bearer ${accessToken}`,
                             "Content-Type": "application/json; charset=UTF-8",
                             "X-Upload-Content-Type": req.headers['x-mime-type'],
                             "X-Upload-Content-Length": req.headers['x-file-size'],
-                        },
+                        }
+                        ,
                         body: JSON.stringify({
                             name: path.basename(fileName),
                             parents: [parentFolderId]
@@ -662,16 +665,12 @@ connectDB()
                     if (!response.ok) {
                         return null
                     }
+                    const uploadUrl = response.headers.get("location");
+                    return uploadUrl;
                 } catch (error) {
                     return null
                 }
-
-
-
-                const uploadUrl = response.headers.get("location");
-                return uploadUrl;
             }
-
 
 
             const accesstoken = req.cookies?.googleAccessToken;
@@ -680,39 +679,44 @@ connectDB()
             const filename = req.headers['x-file-name']
             const virtualparent = req.query?.virtualParent
             const totalSize = parseInt(req.headers['content-length']);
+            // console.log("totalSize : ",totalSize)
             const contentType = req.headers['x-mime-type']
+            const fileSize = parseInt(req.headers['x-file-size']);
+            // console.log("fileSize : ",fileSize)
 
-            let uploadUrl;
 
+            const uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
 
-
-            uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
             if (!uploadUrl) {
                 return res.status(401).send("google access to expired so upload url cannot be created")
             }
+            console.log("uploadUrl : ", uploadUrl)
 
 
-
-
-
-
-
-            const MIN_CHUNK_SIZE = 1024 * 1024 * 1; // 256KB
+            const MIN_CHUNK_SIZE = 1024 * 1293; // min 256kb   ,  1 = 1 byte
             let buffer = Buffer.alloc(0);
             let offset = 0;
 
+            let i = 0
 
+            let j = 0
             req.on("data", async (chunk) => {
+                console.log(`chunk ${i}: `, chunk.length())
+                console.log("__waiting__")
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                i++
+
                 req.pause();
 
                 buffer = Buffer.concat([buffer, chunk]);
 
-                while (buffer.length >= MIN_CHUNK_SIZE) {
-                    const currentChunk = buffer.slice(0, MIN_CHUNK_SIZE);
-                    buffer = buffer.slice(MIN_CHUNK_SIZE);
+                if (buffer.length >= MIN_CHUNK_SIZE) {
+                    const completedChunkToSend = buffer.slice(0, MIN_CHUNK_SIZE);
+                    const remainingBuffer = buffer.slice(MIN_CHUNK_SIZE);
+                    buffer = remainingBuffer
 
                     const start = offset;
-                    const end = offset + currentChunk.length - 1;
+                    const end = offset + completedChunkToSend.length - 1;
 
                     const contentRange = `bytes ${start}-${end}/${totalSize}`;
                     const t0 = process.hrtime.bigint(); // High-res time
@@ -720,25 +724,27 @@ connectDB()
                     const response = await fetch(uploadUrl, {
                         method: 'PUT',
                         headers: {
-                            'Content-Length': currentChunk.length.toString(),
+                            'Content-Length': completedChunkToSend.length.toString(),
                             'Content-Range': contentRange,
                             'Content-Type': contentType
                         },
-                        body: currentChunk
+                        body: completedChunkToSend
                     });
 
                     const t1 = process.hrtime.bigint();
                     const durationSeconds = Number(t1 - t0) / 1e9; // seconds
-                    const speedMBps = (currentChunk.length / (1024 * 1024)) / durationSeconds;
+                    const speedMBps = (completedChunkToSend.length / (1024 * 1024)) / durationSeconds;
 
-                    if (![200, 201, 308].includes(response.status)) {
+                    if (!response.ok) {
                         const err = await response.text();
-                        console.error("Chunk upload failed:", err);
-                        return res.status(500).send("Upload failed");
+                        console.log(`Some rrr ocured in uploading ths chunk ${i} : `, err);
+                        return res.status(500).send("Some rrr ocured in");
                     }
 
                     console.log(`✅ Uploaded chunk: ${contentRange}`);
-                    offset += currentChunk.length;
+                    offset += completedChunkToSend.length;
+
+
                     console.log(`Uploaded : ${((offset / totalSize) * 100).toFixed(2)}%  — Speed: ${speedMBps.toFixed(2)} MB/s`)
                 }
 
@@ -746,6 +752,9 @@ connectDB()
             });
 
             req.on("end", async () => {
+                console.log(`buffer ${j}: `, buffer.length)
+                j++
+                res.send("")
                 if (buffer.length > 0) {
                     const start = offset;
                     const end = offset + buffer.length - 1;
@@ -761,7 +770,7 @@ connectDB()
                         body: buffer
                     });
 
-                    if (![200, 201, 308].includes(response.status)) {
+                    if (!response.ok) {
                         const err = await response.text();
                         console.error("Final chunk upload failed:", err);
                         return res.status(500).send("Final upload failed");
@@ -770,16 +779,28 @@ connectDB()
 
                     console.log(`Uploaded : ${(100).toFixed(2)}%`)
                     console.log(req.headers['x-file-name'], " uploaded successfully");
-                    let user;
+
                     try {
-                        user = await findUserByUsername(username)
+                        const user = await findUserByUsername(username)
+                        if (!user) {
+                            return res.status(404).send("user not exists after uploading file")
+                        }
+
+                        const statusWithInfo = await pushFileInfoInDatabase(
+
+                            user._id,
+                            info.id,
+                            filename,
+                            virtualparent,
+                            totalSize
+                        )
+                        console.log(statusWithInfo.filesize)
+                        res.status(200).json(statusWithInfo);
+
                     } catch (error) {
                         console.log("THIS IS THE CASE WHICH WILL BE SOLVED LATER")
                         return res.status(404).send("uploaded in cloud but not linked in db")
                     }
-                    const statusWithInfo = await pushFileInfoInDatabase(user._id, info.id, filename, virtualparent, totalSize)
-
-                    res.status(200).json(statusWithInfo);
 
                 }
             });
@@ -790,6 +811,285 @@ connectDB()
             });
 
         });
+
+
+
+        app.post("/uploadfile", async (req, res) => {
+            // process.stdin._read()
+
+            // Extract headers and query params
+            const accessToken = req.cookies?.googleAccessToken;
+            const parentFolderId = req.query?.parentFolderId;
+            const username = req.query?.username;
+            const fileName = req.headers['x-file-name'];
+            const virtualParent = req.query.virtualParent;
+            const virtualBranch = req.query.virtualBranch;
+      
+
+            if(!accessToken){
+                return res.status(404).send("No acess token present")
+            }
+
+            if(!(parentFolderId && username && fileName && virtualParent && virtualBranch)){
+                console.log("params nahi aye hai")
+                return res.status(404).send("no other credentials present")
+            }
+            console.log("virtualBranch : ",virtualBranch.slice(0,2))
+
+            const fileSize = parseInt(req.headers['x-file-size']); // File size from client
+            const contentType = req.headers['x-mime-type'];
+
+            console.log("File Name:", fileName);
+            console.log("Content-Type:", contentType);
+            console.log("File Size:", fileSize);
+
+      
+            async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
+                try {
+                    const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Content-Type": "application/json; charset=UTF-8",
+                            "X-Upload-Content-Type": contentType,
+                            "X-Upload-Content-Length": fileSize.toString(),
+                        },
+                        body: JSON.stringify({
+                            name: path.basename(fileName),
+                            parents: [parentFolderId]
+                        })
+                    });
+                    if (!response.ok) {
+                        console.error("Failed to create upload URL:", await response.text());
+                        return null;
+                    }
+                    return response.headers.get("location");
+                } catch (error) {
+                    console.error("Error creating upload URL:", error);
+                    return null;
+                }
+            }
+
+            async function checkUploadedRange(uploadUrl, accessToken) {
+                try {
+                    const response = await fetch(uploadUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Range': `bytes */${fileSize}`
+                        }
+                    });
+                    if (response.status === 308) {
+                        const range = response.headers.get('Range'); // e.g., "bytes=0-524287"
+                        return range ? parseInt(range.split('-')[1]) + 1 : 0;
+                    }
+                    return 0;
+                } catch (error) {
+                    console.error("Error checking range:", error);
+                    return 0;
+                }
+            }
+
+            const uploadUrl = await resumableUploadLinkCreator(accessToken, parentFolderId, fileName);
+            if (!uploadUrl) {
+                return res.status(401).send("Google access token expired or some other issue");
+            }
+            
+            let offset = await checkUploadedRange(uploadUrl, accessToken);
+            
+
+            const MIN_CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
+            const uploadStream = new PassThrough();
+            req.pipe(uploadStream);
+
+            let buffer = Buffer.alloc(0);
+            let chunkCounter = 0;
+
+            uploadStream.on("data", async (chunk) => {
+                uploadStream.pause(); 
+                buffer = Buffer.concat([buffer, chunk]);
+                // console.log("Memory Usage:", process.memoryUsage().heapUsed / 1024 / 1024, "MB");
+               
+                while (buffer.length >= MIN_CHUNK_SIZE) {
+                    const chunkToSend = buffer.slice(0, MIN_CHUNK_SIZE);
+                    buffer = buffer.slice(MIN_CHUNK_SIZE);
+
+                    const start = offset;
+                    const end = offset + chunkToSend.length - 1;
+                    const contentRange = `bytes ${start}-${end}/${fileSize}`;
+
+                    try {
+                        const t0 = process.hrtime.bigint();
+                        const response = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Length': chunkToSend.length.toString(),
+                                'Content-Range': contentRange,
+                                'Content-Type': contentType
+                            },
+                            body: chunkToSend
+                        });
+
+                        const t1 = process.hrtime.bigint();
+                        const durationSeconds = Number(t1 - t0) / 1e9;
+                        const speedMBps = (chunkToSend.length / (1024 * 1024)) / durationSeconds;
+
+                        if (!response.ok && response.status !== 308) {
+                            console.error(`Chunk ${chunkCounter} failed:`, await response.text());
+                            return res.status(500).send("Chunk upload failed");
+                        }
+
+                        // console.log(`✅ Chunk ${chunkCounter}: ${contentRange} uploaded`);
+                        console.log(`Progress: ${((offset + chunkToSend.length) / fileSize * 100).toFixed(2)}% | Speed: ${speedMBps.toFixed(2)} MB/s`);
+                        // res.write(`${((offset + chunkToSend.length) / fileSize * 100).toFixed(2)}%`)
+                        offset += chunkToSend.length;
+                        chunkCounter++;
+                    } catch (error) {
+                        console.error(`Chunk ${chunkCounter} error:`, error);
+                        return res.status(500).send("Chunk upload error");
+                    }
+                }
+
+                uploadStream.resume(); // Resume stream for next chunk
+            });
+
+            uploadStream.on("end", async () => {
+                // Handle final chunk if any
+                if (buffer.length > 0) {
+                    const start = offset;
+                    const end = offset + buffer.length - 1;
+                    const contentRange = `bytes ${start}-${end}/${fileSize}`;
+
+                    try {
+                        const response = await fetch(uploadUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Length': buffer.length.toString(),
+                                'Content-Range': contentRange,
+                                'Content-Type': contentType
+                            },
+                            body: buffer
+                        });
+
+                        if (!response.ok) {
+                            console.error("Final chunk failed:", await response.text());
+                            return res.status(500).send("Final chunk upload failed");
+                        }
+
+                        const info = await response.json();
+                        console.log(`${fileName} uploaded successfully. File ID: ${info.id}`);
+
+                        // Save to database
+                        try {
+                            const user = await findUserByUsername(username);
+                            if (!user) {
+                                return res.status(404).send("User not found after upload");
+                            }
+
+                            const statusWithInfo = await pushFileInfoInDatabase(
+                                user._id,
+                                info.id,
+                                fileName,
+                                virtualParent,
+                                virtualBranch,
+                                fileSize
+                            );
+                            console.log("Database updated, File Size:", statusWithInfo.filesize);
+                            res.status(200).json(statusWithInfo);
+                        } catch (error) {
+                            console.error("Database error:", error);
+                            res.status(500).send("Uploaded to cloud but failed to link in DB");
+                        }
+                    } catch (error) {
+                        console.error("Final chunk error:", error);
+                        res.status(500).send("Final chunk upload error");
+                    }
+                } else {
+                    // If no final chunk, still check if upload completed
+                    res.status(200).send("Upload completed");
+                }
+            });
+
+            uploadStream.on("error", (err) => {
+                console.error("Stream error:", err);
+                res.status(500).send("Stream error");
+            });
+
+            req.on("error", (err) => {
+                console.error("Request error:", err);
+                res.status(500).send("Request error");
+            });
+        });
+
+
+
+        app.get("/get-files-list", async (req, res) => {
+            const comingAccessToken = req.cookies?.accessToken
+            // const comingAccessToken = req.query.accesstoken
+            const virtualparent = req.query.subject
+            if (!comingAccessToken) {
+                return res.status(404).send("No access token available")
+            }
+            const user = await verifyAccessToken(comingAccessToken)
+            if (!user) {
+                return res.status(401).send("Access token expired")
+            }
+            const newUser = await findUserByUsername(user.username)
+            if (!newUser) {
+                return res.status(404).send("user not found")
+            }
+            const filesList = await File.find({
+                userid: newUser._id,
+                virtualparent: virtualparent
+            });
+            if (!filesList) {
+                return res.status(404).send("no files found")
+            }
+            // console.log(JSON.stringify(filesList))
+            console.log(typeof filesList)
+            return res.status(200).json(filesList)
+
+        })
+
+        app.get("/get-subjects-list", async (req, res) => {
+
+            const username = "shivam1"
+            const user = await findUserByUsername(username)
+            if (!user) {
+                res.status(404).send("user not found")
+            }
+            const folders = await File.distinct("virtualparent", {
+                userid: user._id,
+                virtualparent: { $nin: [null, ""] }
+            });
+            if (!folders.length) {
+                return res.status(404).send("no folders available")
+            }
+            return res.status(200).send(folders)
+
+        })
+
+        app.get("/get-subject-branch", async (req, res) => {
+            console.log("query came")
+            // const virtualbranch = req.query.virtualbranch
+            const virtualparent = req.query.virtualparent
+
+            const username = "shivam1"
+            const user = await findUserByUsername(username)
+            if (!user) {
+                res.status(404).send("user not found")
+            }
+            const virtualbranches = await File.distinct("virtualbranch", {
+                userid: user._id,
+                virtualparent: virtualparent,
+            });
+            if (!virtualbranches.length) {
+                return res.status(404).send("no folders available")
+            }
+            console.log(virtualbranches)
+            return res.status(200).send(virtualbranches)
+
+        })
 
 
 

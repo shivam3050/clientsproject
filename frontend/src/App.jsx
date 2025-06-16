@@ -40,7 +40,7 @@
 //     <div className='homepage'>
 //       <header className="header">
 //         <button onClick={MenuLoaderButton}>MENU</button>
-        
+
 //       </header>
 //       <aside className='homepageaside'>
 //         <section className='aside-pure'>
@@ -69,12 +69,12 @@
 //     )
 //   } 
 //   else {
-    
+
 //     return (
 //       <div className='homepage'>
 //       <header className="header">
 //       <button onClick={MenuLoaderButton}>MENU</button>
-      
+
 //       </header>
 //       <aside className='homepageaside'>
 //         <section className='aside-pure'>
@@ -154,7 +154,7 @@
 
 
 
-import {BrowserRouter as Router,Routes,Route} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -162,6 +162,10 @@ import './App.css'
 import Adminn from './pages/Admin';
 import Studentt from './pages/Student';
 import AdminDashboard from "./pages/AdminDashboard";
+import { AdminSubjectDetail } from "./pages/AdminSubjectDetail";
+import { AdminSubjectCardGrid } from "./pages/AdminSubjectCardGrid";
+import { StudentSubjectDetail } from "./pages/StudentSubjectDetail";
+// import { StudentSubjectCardGrid } from "./pages/StudentSubjectCardGrid";
 // import StudentPage from './pages/StudentPage'
 // import AdminPage from './pages/AdminPage'
 
@@ -175,12 +179,26 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={(<Studentt/>)}/>
-        <Route path="/admin" element={(<Adminn/>)}/>
-        <Route path="/admindashboard" element={(<AdminDashboard />)}/>
-        <Route path="/student" element={(<Studentt/>)}/>
+        <Route path="/" element={(<Studentt />)} >
+          <Route index element={<div style={{ color: "red" }}>This is the outlets root</div>} />
+          <Route path=":subject" element={<StudentSubjectDetail />} />
+        </Route>
+
+
+        <Route path="/admin" element={(<Adminn />)} />
+
+        <Route path="/admindashboard" element={<AdminDashboard />}>
+          <Route index element={<AdminSubjectCardGrid />} />
+          <Route path=":subject" element={<AdminSubjectDetail />} />
+        </Route>
+
+
+        <Route path="/student" element={(<Studentt />)} >
+          <Route index element={<div style={{ color: "red" }}>This is the outlets root</div>} />
+          <Route path=":subject" element={<StudentSubjectDetail />} />  {/*   /student/:x iska matlab hota hai ki ye route ye /student/:x  yha per { x:<providing route> } this can be nested also */}
+        </Route>
       </Routes>
-    </Router>
+    </Router >
   )
 
 }

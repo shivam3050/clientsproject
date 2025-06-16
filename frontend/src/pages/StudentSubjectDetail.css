@@ -1,0 +1,157 @@
+.student-subjectsdiv-detail{
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+
+}
+.student-subjectsdiv-detail>*{
+
+    padding: 25px;
+    box-sizing: border-box;
+    margin: 25px;
+    width: 100%;
+    max-width: 100%;
+    /* text-wrap: wrap; */
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px 5px rgb(129, 129, 129);
+}
+
+.student-subjectsdiv-detail > :nth-child(1) > * {
+
+}
+.student-subjectsdiv-detail > :nth-child(2) {
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  /* box-shadow: inset 0px 5px 15px 5px rgb(129, 129, 129); */
+  box-shadow: none;
+}
+.student-subjectsdiv-detail > :nth-child(2)>*{
+  margin-block: 25px;
+  font-size: 200%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: start;
+}
+
+.upload-section input[type="file"] {
+  padding: 5px;
+}
+
+.upload-section button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.upload-section button:hover {
+  background-color: #0056b3;
+}
+
+.upload-log {
+  margin-top: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+svg {
+  margin-top: 10px;
+}
+
+.file-list-section {
+  margin-top: 20px;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+.file-card {
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 12px;
+  text-decoration: none;
+  color: black;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.file-card:hover {
+  background-color: #e0e0e0;
+}
+
+
+input[type="file"] {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 15px;
+  color: #2d3436;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #dfe6e9;
+  background-color: #f5f6fa;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+input[type="file"]::file-selector-button {
+  border: none;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 6px;
+  background-color: #6c5ce7;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background-color: #00cec9;
+  color: #2d3436;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 206, 201, 0.4);
+}

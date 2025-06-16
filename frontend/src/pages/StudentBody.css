@@ -1,28 +1,60 @@
-.StudentBody .main {
-    width: 100%;
-    height: calc(90vh);
-    background-color: rgb(255, 255, 255);
-    padding: 10px;
-    box-sizing: border-box;
-    overflow-y: auto;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.StudentBody{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-.subjects-scroll{
+
+
+
+
+
+
+
+.student-subjectsdivgrid{
+    width:90%;
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-   
-    
-
-}
-.subjects-scroll > *{
-    box-shadow: 0px 5px 15px 5px rgb(129, 129, 129);
-    width: clamp(300px,15vw,500px);
-    height: clamp(250px,13vw,400px);
-    background-color: rgb(255, 255, 255);
-    margin: 15px;
+    margin: 20px;
     border-radius: 10px;
-    font-size: calc(40px + 1%);
-    padding: 10px;
-    flex-shrink: 0;  
+    padding: 20px;
+    box-sizing: border-box;
+    box-shadow:0px 5px 15px 5px rgb(129, 129, 129);
+}
+.student-subjectsdivgrid ul{
+    display: flex;
+    list-style: none;
+    overflow-x: auto;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+    /* align-self: stretch; */
+}
+.student-subjectsdivgrid ul > * {
+    margin: 20px;
+    border-radius: 0px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px 5px rgb(129, 129, 129);
+    /* flex: 1; */
+    height: 100%;
+
+
 }

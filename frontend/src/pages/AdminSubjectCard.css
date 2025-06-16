@@ -1,0 +1,9 @@
+.admin-subject-card {
+    width: 90%;
+    height: 90%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    font-size: 1vw;
+}

@@ -1,11 +1,10 @@
 import { useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "./AdminBodySignIn.css"
 import { refreshAccessToken, refreshGoogleAccessToken } from "./AdminDashboard.jsx";
 
 class AutoLogin {
     #googleRetryCount = 0;
-    async testGoogleAccessTokenWithGoogleDriveAccess () {
+    async testGoogleAccessTokenWithGoogleDriveAccess() {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/test-google-access-token`, {
             method: "GET",
             credentials: "include",
@@ -13,12 +12,12 @@ class AutoLogin {
         })
         if (response.status === 401) {
             const error = await response.text()
-            alert(error + " this will be improved")
+            // alert(error + " this will be improved")
             if (this.#googleRetryCount < 2) {
                 this.#googleRetryCount += 1;
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
-                    alert("your google refresh token is also expired")
+                    // alert("your google refresh token is also expired")
                     return false
                 } else {
                     return await this.testGoogleAccessTokenWithGoogleDriveAccess()
@@ -28,62 +27,62 @@ class AutoLogin {
         }
         if (!response.ok) {
             const error = await response.text()
-            alert(error)
+            // alert(error)
             return false
         } else {
             const data = await response.json();
             if (data.success && data.redirectUrl) {
-                alert("yes google access token is well now redirecting to dashboard")
-                window.location.href = data.redirectUrl;  // ✅ Perform browser redirect
+                // alert("yes google access token is well now redirecting to dashboard")
+                window.location.href = data.redirectUrl;
 
-                this.#googleRetryCount =0
+                this.#googleRetryCount = 0
                 return true
             }
             else {
-                this.#googleRetryCount=0
+                this.#googleRetryCount = 0
                 return false
             }
         }
     }
     #normalRetryCount = 0;
-    async testAccessTokenWithLoginAccess () {
-        alert("auto login front trigger hua hai with retry counnt:  " + this.#normalRetryCount)
-    
+    async testAccessTokenWithLoginAccess() {
+        // alert("auto login front trigger hua hai with retry counnt:  " + this.#normalRetryCount)
+
         const loggedInUser = await fetch(`${import.meta.env.VITE_BACKEND_URL}/adminautologin`, {
             method: "POST",
             credentials: "include"
         })
-    
+
         if (loggedInUser.status === 401) {
             const error = await loggedInUser.text()
-            alert(loggedInUser.status)
+            // alert(loggedInUser.status)
             if (this.#normalRetryCount < 2) {
                 this.#normalRetryCount += 1;
-    
+
                 const flag = await refreshAccessToken()
                 if (!flag) {
-                    alert("refresh token has been expired you need to manually login")
+                    // alert("refresh token has been expired you need to manually login")
                     return;
                 } else {
-                    alert("get new access token sucess now calling auto login again")
+                    // alert("get new access token sucess now calling auto login again")
                     return await this.testAccessTokenWithLoginAccess()
                 }
-            } 
+            }
             return false
         }
-    
+
         if (loggedInUser.status !== 200) {
-    
+
             const error = await loggedInUser.text()
-    
-            alert(error)
+
+            // alert(error)
             this.#normalRetryCount = 0
             return false;
         } else {
             this.#normalRetryCount = 0
             return true;
         }
-        
+
     }
 
 }
@@ -101,23 +100,22 @@ const AdminBody = () => {
     const autoLoginHandler = async () => {
         const Admin = new AutoLogin()
 
-        if(await Admin.testAccessTokenWithLoginAccess()){
+        if (await Admin.testAccessTokenWithLoginAccess()) {
             await Admin.testGoogleAccessTokenWithGoogleDriveAccess()
         } else {
             return
         }
 
-
     }
 
     useEffect(() => {
-        alert("useeffect auto login wala call hua")
+        // alert("useeffect auto login wala call hua")
         autoLoginHandler()
     }, [])
 
 
     const handleLogin = async () => {
-        alert("clicked to username login fetch")
+        // alert("clicked to username login fetch")
 
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogin`,
             {
@@ -138,8 +136,7 @@ const AdminBody = () => {
             // const {username,fullname, accessToken} = await res.json()
             errLog.current.textContent = "";
             window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`;
-            // localStorage.setItem('accessToken', accessToken);
-            // navigate("/admindashboard",{ state: { username: username,fullname:fullname } })
+
         } else {
             const error = await res.text()
             // errLog.current.textContent = error;
@@ -151,7 +148,21 @@ const AdminBody = () => {
             <h2>Login</h2>
             <h3><span>or </span><a href="" style={{ color: "green", borderBottom: "2px dotted green", cursor: "pointer" }}>register as admin</a></h3>
             <div className="credentialsInput">
-                <button>Flag</button>
+                <button>
+                    <svg width="30" height="20" viewBox="0 0 450 300" xmlns="http://www.w3.org/2000/svg">
+                       
+                        <rect width="450" height="100" fill="#FF9933" />
+
+                        <rect y="100" width="450" height="100" fill="white" />
+
+                    
+                        <rect y="200" width="450" height="100" fill="#138808" />
+
+                    
+                        <circle cx="225" cy="150" r="50" stroke="navy" stroke-width="2" fill="none" />
+                        
+                    </svg>
+                </button>
                 <input type="text" name="username" ref={usernameRef} placeholder="Enter username" />
                 <input type="text" name="password" ref={passwordRef} placeholder="Enter password" />
             </div>

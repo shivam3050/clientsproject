@@ -2,6 +2,8 @@ import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useEffect } from 'react';
 import "./AdminDashboard.css"
 import { useState } from 'react';
+import { AutoLogin } from './AdminBody';
+
 // import { AdminSubjectCard } from './AdminSubjectCard';
 // import { Routes, Route } from "react-router-dom"
 // import { AdminSubjectDetail } from './AdminSubjectDetail';
@@ -70,7 +72,7 @@ export const refreshAccessToken = async () => {
             return data.username
         }
     } catch (error) {
-        
+
         console.error(error)
         return null
     }
@@ -96,14 +98,14 @@ class CreateGoogleCloudbase {
         if (response.status === 401) {
             status = response.status
             const err = await response.text()
-           
+
 
             if (this.#retryCount < 2) {
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
                     return null
                 } else {
-                  
+
                     const folderid = await this.create()
                     return folderid
                 }
@@ -117,7 +119,7 @@ class CreateGoogleCloudbase {
         if (!response.ok) {
             status = response.status
             const invalidMsg = await response.text()
-         
+
             return null
         }
 
@@ -142,15 +144,37 @@ class CreateGoogleCloudbase {
 
 
 
-async function handleGoogleSignInAndCloudCreation(username) {
+async function handleGoogleAutoLogin() {
+    const Admin = new AutoLogin()
+    const flag = await Admin.testGoogleAccessTokenIfNotThenUpdate()
+    if (!flag) {
+       
+        return false
+    }
+    return true
 
 }
+
+async function handleGoogleManualLogin() {
+    //     const googleFlag = await fetch(`${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`, {
+    //     method: "GET",
+    //     mode:"cors",
+    //     credentials:"include"
+    // })
+    // if (!googleFlag.ok) {
+    //     const err = await googleFlag.text()
+    //     alert("google flag is false")
+    // return
+    // }
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`
+}
+
 
 export class Uploadfile {
 
     #retryUpload = 0
     async uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch) {
-       
+
         if (!googlecloudbaseid) {
             alert("Google cloudbase is absent.")
             return null
@@ -185,7 +209,7 @@ export class Uploadfile {
             body: file
         })
         if (responseStatus.status === 401) {
-           
+
             if (this.#retryUpload < 2) {
                 this.#retryUpload += 1
                 const flag = await refreshGoogleAccessToken()
@@ -201,7 +225,7 @@ export class Uploadfile {
             return null
         }
         if (!responseStatus.ok) {
-            
+
             console.log(responseStatus.status)
             return null
         }
@@ -226,34 +250,56 @@ export class Uploadfile {
 
 
 const AdminDashboard = () => {
- 
+
 
     const [googlecloudbaseid, setgooglecloudbaseid] = useState("")
+
     const [username, setUsername] = useState("")
+    const [fullname, setFullname] = useState("")
 
     const navigate = useNavigate()
-    const location = useLocation();
-    const params = new URLSearchParams(location.search);
-    const fullname = params.get("fullname");
-   
+    // const location = useLocation();
+    // const params = new URLSearchParams(location.search);
+    // const fullname = params.get("fullname");
+
 
 
 
 
 
     useEffect(() => {
-        const initializeFolderCreation = async () => {
-            const uname = params.get("username");
-            if (!username) {
-                setUsername(uname);
+        const settingUsernameFullname = async () => {
+
+            const storedUsername = localStorage.getItem("loggedInUsername");
+            const storedFullname = localStorage.getItem("fullname");
+
+            if (storedUsername) setUsername(storedUsername);
+            if (storedFullname) setFullname(storedFullname);
+
+            if(!storedUsername){
                 return
             }
-            const Cloudbase = new CreateGoogleCloudbase(username)
-            setgooglecloudbaseid(await Cloudbase.create())
+
+            const flag = handleGoogleAutoLogin()
+            if(!flag){
+                return
+            }
+
+            const Cloudbase = new CreateGoogleCloudbase(storedUsername)
+
+            const googleCloudBaseID = await Cloudbase.create()
+            if(!googleCloudBaseID){
+                return
+            }
+
+            setgooglecloudbaseid(googleCloudBaseID)
+
             return
         }
-        initializeFolderCreation()
-    }, [username])
+        
+           
+        settingUsernameFullname()
+    }, [])
 
 
 
@@ -267,15 +313,21 @@ const AdminDashboard = () => {
         if (response.status === 401) {
             refreshGoogleAccessToken()
                 .then((flag) => {
-                    if(!flag){navigate("/admin")}
-                    else {fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
-                        {
-                            method: "POST",
-                            credentials: "include"
-                        }
-                    ).then(()=>{navigate("/admin");("sign outed")})}
+                    if (!flag) { navigate("/admin") }
+                    else {
+                        fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
+                            {
+                                method: "POST",
+                                credentials: "include"
+                            }
+                        ).then(() => {
+                            // localStorage.removeItem("loggedInUsername");
+                            // localStorage.removeItem("fullname");
+                            navigate("/admin"); ("sign outed")
+                        })
+                    }
                 })
-                
+
 
         }
         if (response.status != 200) {
@@ -285,7 +337,7 @@ const AdminDashboard = () => {
         } else {
             const msg = await response.text()
             navigate("/admin")
-          
+
             return;
         }
 
@@ -304,7 +356,7 @@ const AdminDashboard = () => {
                 </header>
                 <main>
                     <ul>
-                        <li><a href="/student" target="_blank" className="" rel="noopener noreferrer" onClick={()=>{AdminMenuLoaderButton();}}>Student</a></li>
+                        <li><a href="/student" target="_blank" className="" rel="noopener noreferrer" onClick={() => { AdminMenuLoaderButton(); }}>Student</a></li>
                         <li>About</li>
                     </ul>
                     <button onClick={logoutButton}>Logout</button>
@@ -331,10 +383,11 @@ const AdminDashboard = () => {
                 <main>
 
                     <div className="admin-dashboard-body-top">
-                        <input type="search" name="search" id="" placeholder='/search'  />
+                        {googlecloudbaseid ? (<div style={{color:"blue"}}>Connected to Drive !!</div>) : (<button onClick={handleGoogleManualLogin}>Connect Google Drive</button>)}
+                        <input type="search" name="search" id="" placeholder='/search' />
                     </div>
-            
-                        <Outlet context={[googlecloudbaseid, username]} />
+
+                    <Outlet context={[googlecloudbaseid, username]} />
 
 
                 </main>

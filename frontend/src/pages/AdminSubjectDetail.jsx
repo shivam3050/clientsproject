@@ -52,13 +52,34 @@ async function handleUpload(googlecloudbaseid, file, username, progressRef, virt
 
 
 }
+function handleDelete(e,item){
+  const finalDelete = async () => {
+                          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/deletefile?fileId=${item.fileid}&username=${item.username}`,{
+                            method:"POST",
+                            credentials:"include"
+                          })
+                          if (!res.ok) {
+                            alert("not deletd")
+                            return
+                          }
+                          e.target.parentElement.classList.add("fade-out")
+                          setTimeout(()=>{
+                            e.target.parentElement.remove()
+                          },400)
+                        }
+  const confirmed = window.confirm(`Are you sure to delete ${item.filename}`)
+  if(!confirmed){
+    return
+  }
+  finalDelete()
+}
 
 export const AdminSubjectDetail = () => {
   const [googlecloudbaseid, username] = useOutletContext();
   const params = useParams();
   const virtualParent = params.subject;
   const virtualBranchObject = useRef()
-  const tester = useRef()
+  // const tester = useRef()
   const fileRef = useRef();
   const progressRef = useRef();
   const uploadLog = useRef();
@@ -68,20 +89,21 @@ export const AdminSubjectDetail = () => {
 
 
     if (!virtualParent) {
-    
+
       return;
     }
 
 
 
     const fileListerInUseEffect = async () => {
-      const fileListString = await fetch(
-        `${process.env.BACKEND_URL}/get-files-list?subject=${encodeURIComponent(virtualParent)}`,
-        { method: "GET", credentials: "include" }
+      const fileListString = await fetch(`${import.meta.env.VITE_BACKEND_URL}/get-files-list-admin?subject=${encodeURIComponent(virtualParent)}`,
+        { method: "GET" }
       );
-      if (fileListString.ok) {
-        setFileslist(await fileListString.json());
+      if (!fileListString.ok) {
+        const err = await fileListString.text()
+        console.log(err)
       }
+      setFileslist(await fileListString.json());
     }
     fileListerInUseEffect()
 
@@ -96,10 +118,10 @@ export const AdminSubjectDetail = () => {
           <input type="file" ref={fileRef} />
 
           <form id="branch-selector-form" ref={virtualBranchObject}>
-            <div><input  type="radio" name="branch" id="" value="Notes" defaultChecked /> Notes <br /></div>
-            <div><input  type="radio" name="branch" id="" value="Previous Year Papers" /> Previous Year Papers <br /></div>
-            <div><input  type="radio" name="branch" id="" value="Custom Notes" /> Custom Notes <br /></div>
-            <div><input  type="radio" name="branch" id="" value="Short Tricks" /> Short Tricks <br /></div>
+            <div><input type="radio" name="branch" id="" value="Notes" defaultChecked /> Notes <br /></div>
+            <div><input type="radio" name="branch" id="" value="Previous Year Papers" /> Previous Year Papers <br /></div>
+            <div><input type="radio" name="branch" id="" value="Custom Notes" /> Custom Notes <br /></div>
+            <div><input type="radio" name="branch" id="" value="Short Tricks" /> Short Tricks <br /></div>
           </form>
 
           <button
@@ -137,32 +159,31 @@ export const AdminSubjectDetail = () => {
         </section>
         <section>
 
-
-
         </section>
       </div>
 
-      <div className="file-list-section">
+      <div className="">
         <h3>Uploaded Files</h3>
-        {fileslist ? (
+        {(fileslist && googlecloudbaseid) ? (
           fileslist.length > 0 ? (
             <div className="file-grid">
               {fileslist.map((item, index) => (
-                <a
-                  key={index}
-                  href={`https://drive.google.com/uc?export=download&id=${item.fileid}`}
-                  className="file-card"
-                >
-                  <strong>{item.filename}</strong><br />
-                  <span>&nbsp;Size: {item.filesize} bytes</span>
-                </a>
+                  <div
+                    key={index}
+                    className="file-card"
+                  >
+                    <strong>{item.filename}</strong><br />
+                    <span>&nbsp;Size: {item.filesize} bytes</span>
+                    <div style={{ color: "white", backgroundColor: "red" ,cursor:"pointer",borderRadius:"4px",padding:"5px"}}
+                      onClick={(e)=>{handleDelete(e,item)}}>Delete</div>
+                  </div>
               ))}
             </div>
           ) : (
-            <p>No files uploaded yet.</p>
+            (googlecloudbaseid)?(<p>No files uploaded yet.</p>):(<p>Connect google drive to access</p>)
           )
         ) : (
-          <p>Loading files...</p>
+          (googlecloudbaseid)?(<p>Loading...</p>):(<p>Connect google drive to access</p>)
         )}
       </div>
     </div>

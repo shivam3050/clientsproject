@@ -6,6 +6,7 @@ const filesSchema = new Schema(
             type:String,
             required:true
         },
+        username:String,
         filename:String,
         virtualparent:String,
         virtualbranch:String,

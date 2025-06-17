@@ -1,10 +1,11 @@
 import { useRef, useEffect } from "react";
 import "./AdminBodySignIn.css"
 import { refreshAccessToken, refreshGoogleAccessToken } from "./AdminDashboard.jsx";
+import { useNavigate } from "react-router-dom";
 
-class AutoLogin {
+export class AutoLogin {
     #googleRetryCount = 0;
-    async testGoogleAccessTokenWithGoogleDriveAccess() {
+    async testGoogleAccessTokenIfNotThenUpdate() {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/test-google-access-token`, {
             method: "GET",
             credentials: "include",
@@ -18,7 +19,7 @@ class AutoLogin {
                 if (!flag) {
                     return false
                 } else {
-                    return await this.testGoogleAccessTokenWithGoogleDriveAccess()
+                    return await this.testGoogleAccessTokenIfNotThenUpdate()
                 }
             }
             return false
@@ -50,28 +51,31 @@ class AutoLogin {
 
         if (loggedInUser.status === 401) {
             const error = await loggedInUser.text()
+            console.log(error)
             if (this.#normalRetryCount < 2) {
                 this.#normalRetryCount += 1;
 
                 const flag = await refreshAccessToken()
                 if (!flag) {
-                    return;
+                    return null;
                 } else {
                     return await this.testAccessTokenWithLoginAccess()
                 }
             }
-            return false
+            return null
         }
 
         if (loggedInUser.status !== 200) {
 
             const error = await loggedInUser.text()
+            console.log(error)
 
             this.#normalRetryCount = 0
-            return false;
+            return null;
         } else {
+            const user = await loggedInUser.json()
             this.#normalRetryCount = 0
-            return true;
+            return user;
         }
 
     }
@@ -84,20 +88,26 @@ const AdminBody = () => {
     const usernameRef = useRef(null);
     const passwordRef = useRef(null);
     const errLog = useRef(null);
+    const navigate = useNavigate()
 
 
 
 
     const autoLoginHandler = async () => {
         const Admin = new AutoLogin()
-
-        if (await Admin.testAccessTokenWithLoginAccess()) {
-            await Admin.testGoogleAccessTokenWithGoogleDriveAccess()
+        const user = await Admin.testAccessTokenWithLoginAccess()
+        if (!user) {
+            // await Admin.testGoogleAccessTokenIfNotThenUpdate()
+            return
         } else {
+            localStorage.setItem("loggedInUsername", user.username);
+            localStorage.setItem("fullname", user.fullname);
+            navigate("/admindashboard")
             return
         }
 
     }
+
 
     useEffect(() => {
         autoLoginHandler()
@@ -122,34 +132,38 @@ const AdminBody = () => {
             }
         );
         if (res.status == 200) {
+            const data = await res.json()
+            localStorage.setItem("loggedInUsername", data.username);
+            localStorage.setItem("fullname", data.fullname);
+            navigate("/admindashboard")
             // const {username,fullname, accessToken} = await res.json()
             errLog.current.textContent = "";
-            window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`;
+            // window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`;
 
         } else {
             const error = await res.text()
-            // errLog.current.textContent = error;
+            errLog.current.textContent = error;
             throw new Error(error)
         }
     }
     return (
         <div className="AdminBody">
             <h2>Login</h2>
-            <h3><span>or </span><a href="" style={{ color: "green", borderBottom: "2px dotted green", cursor: "pointer" }}>register as admin</a></h3>
+            <h3><span>or </span></h3>
             <div className="credentialsInput">
                 <button>
                     <svg width="30" height="20" viewBox="0 0 450 300" xmlns="http://www.w3.org/2000/svg">
-                       
+
                         <rect width="450" height="100" fill="#FF9933" />
 
                         <rect y="100" width="450" height="100" fill="white" />
 
-                    
+
                         <rect y="200" width="450" height="100" fill="#138808" />
 
-                    
+
                         <circle cx="225" cy="150" r="50" stroke="navy" stroke-width="2" fill="none" />
-                        
+
                     </svg>
                 </button>
                 <input type="text" name="username" ref={usernameRef} placeholder="Enter username" />

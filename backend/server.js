@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 import mongoose from "mongoose";
 import express from "express";
-import session from "express-session";
 import cors from "cors";
 import { URLSearchParams } from 'url';
 import fetch from "node-fetch"
@@ -63,7 +62,7 @@ function generateAccessToken(username) {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: "10h"
+            expiresIn: "5h"
         }
     );
     return accessToken
@@ -81,7 +80,7 @@ function generateRefreshToken(username) {
     return refreshToken
 }
 
-async function updateRefreshTokensInDatabase(username, newRefreshToken, newGoogleRefreshToken) {
+async function updateRefreshTokenInDatabase(username, newRefreshToken) {
     try {
         const user = await User.findOneAndUpdate(
             {
@@ -90,6 +89,24 @@ async function updateRefreshTokensInDatabase(username, newRefreshToken, newGoogl
             {
                 $set: {
                     refreshToken: newRefreshToken,
+                    // googleRefreshToken: newGoogleRefreshToken
+                }
+            }
+        )
+        return user
+    } catch (error) {
+        return null
+    }
+}
+async function updateGoogleRefreshTokenInDatabase(username, newGoogleRefreshToken) {
+    try {
+        const user = await User.findOneAndUpdate(
+            {
+                username: username
+            },
+            {
+                $set: {
+                    // refreshToken: newRefreshToken,
                     googleRefreshToken: newGoogleRefreshToken
                 }
             }
@@ -100,7 +117,7 @@ async function updateRefreshTokensInDatabase(username, newRefreshToken, newGoogl
     }
 }
 
-async function unsetRefreshTokensInDatabase(username) {
+async function unsetRefreshTokenInDatabase(username) {
     try {
         const user = await User.findOneAndUpdate(
             {
@@ -109,6 +126,24 @@ async function unsetRefreshTokensInDatabase(username) {
             {
                 $unset: {
                     refreshToken: 1,
+                    // googleRefreshToken: 1
+                }
+            }
+        )
+        return user
+    } catch (error) {
+        return null
+    }
+}
+async function unsetGoogleRefreshTokenInDatabase(username) {
+    try {
+        const user = await User.findOneAndUpdate(
+            {
+                username: username
+            },
+            {
+                $unset: {
+                    // refreshToken: 1,
                     googleRefreshToken: 1
                 }
             }
@@ -118,16 +153,30 @@ async function unsetRefreshTokensInDatabase(username) {
         return null
     }
 }
-async function pushFileInfoInDatabase(userId, fileId, fileName, virtualParent,virtualBranch, fileSize) {
+async function pushFileInfoInDatabase(userId, username, fileId, fileName, virtualParent, virtualBranch, fileSize) {
     try {
-        const fileInfo = await File.create(
+        const fileInfo = await File.insertOne(
             {
                 userid: userId,
+                username: username,
                 fileid: fileId,
                 filename: fileName,
                 virtualparent: virtualParent,
                 virtualbranch: virtualBranch,
                 filesize: fileSize
+            }
+        )
+        return fileInfo
+    } catch (error) {
+        return null
+    }
+}
+async function popFileInfoInDatabase(fileId) {
+    try {
+        const fileInfo = await File.deleteOne(
+            {
+
+                fileid: fileId
             }
         )
         return fileInfo
@@ -149,7 +198,7 @@ const connectDB = async () => {
                 retryWrites: true,
             }
         )
-        if(!connectionAttempt){
+        if (!connectionAttempt) {
             throw new Error()
         }
 
@@ -172,18 +221,9 @@ connectDB()
         }))
         app.use(express.json());
         app.use(cookieParser());
-        app.use(session({
-            secret: 'your-secret',
-            resave: false,
-            saveUninitialized: false,
-            cookie: {
-                secure: true,            // only true if you're using HTTPS
-                httpOnly: true,
-                sameSite: 'lax'           // must allow redirects
-            }
-        }));
+        
         app.get("/", (req, res) => {
-            res.send("New Client connected : ",req.headers.host)
+            res.send("New Client connected : ", req.headers.host)
             return
         })
 
@@ -206,7 +246,7 @@ connectDB()
             }
             const newRefreshToken = generateRefreshToken(user.username)
 
-            user = await updateRefreshTokensInDatabase(user.username, newRefreshToken)
+            user = await updateRefreshTokenInDatabase(user.username, newRefreshToken)
             if (!user) {
                 return res.status(501).send("you need to manually login")
             }
@@ -289,23 +329,32 @@ connectDB()
                 }
 
                 if (user.password === password) {
-
-                    // const newAccessToken = generateAccessToken(username)
-                    // const newRefreshToken = generateRefreshToken(username)
+                    const newAccessToken = generateAccessToken(username)
+                    const newRefreshToken = generateRefreshToken(username)
+                    const updatedUser = await updateRefreshTokenInDatabase(user.username, newRefreshToken)
+                    if (!updatedUser) {
+                        return res.status(500).send("internal server err cannot update refresh token")
+                    }
 
                     const options = {
                         httpOnly: true,
-                        secure: true
+                        secure: true,
+                        sameSite: "Strict",                   // optional but recommended
+                        maxAge: 7 * 24 * 60 * 60 * 1000
+
                     }
 
-                    req.session.tempUser = {
-                        username: user.username,      // 🔸 Custom username stored here
-                        fullname: user.fullname,
 
-                    };
-                    res.status(200).send("ok");
-                    // res.redirect("/testapi")
-                    return;
+                    // res.status(200).send("ok");
+                    // return;
+
+
+                    const frontendURL = process.env.FRONTEND_URL;
+                    res.status(200)
+                        .cookie("accessToken", newAccessToken, options)
+                        .cookie("refreshToken", newRefreshToken, options)
+                        .json({ username: updatedUser.username, fullname: updatedUser.fullname })
+                    return
 
 
 
@@ -330,7 +379,7 @@ connectDB()
             if (!decodedAccessToken) {
                 return res.status(401).send("expired access token")
             }
-            const user = await unsetRefreshTokensInDatabase(decodedAccessToken.username)
+            const user = await unsetRefreshTokenInDatabase(decodedAccessToken.username)
             if (!user) {
                 return res.status(404).send("user not found on db")
             }
@@ -354,16 +403,17 @@ connectDB()
 
 
         app.post("/adminautologin", async (req, res) => {
+            // console.log("all tokens", req.cookies) shivam1
             const comingAccessToken = await req.cookies?.accessToken
-            const comingGoogleAccessToken = await req.cookies?.googleAccessToken
+            // const comingGoogleAccessToken = await req.cookies?.googleAccessToken
             if (!comingAccessToken) {
                 res.status(404).send("Access token is not available")
                 return;
             }
-            if (!comingGoogleAccessToken) {
-                res.status(404).send("Google access token is not available")
-                return;
-            }
+            // if (!comingGoogleAccessToken) {
+            //     res.status(404).send("Google access token is not available")
+            //     return;
+            // }
             const decodedAccessToken = verifyAccessToken(comingAccessToken)
             if (!decodedAccessToken) {
                 return res.status(401).send("expired access token")
@@ -373,11 +423,25 @@ connectDB()
                 return res.status(404).send("User not found in db")
             }
 
-            req.session.tempUser = {
-                username: user.username,      // 🔸 Custom username stored here
-                fullname: user.fullname,
-            };
-            res.status(200).send("ok");
+            const newAccessToken = generateAccessToken(user.username)
+            const newRefreshToken = generateRefreshToken(user.username)
+            const updatedUser = await updateRefreshTokenInDatabase(user.username, newRefreshToken)
+            if (!updatedUser) {
+                return res.status(500).send("internal server err cannot update refresh token")
+            }
+
+            const options = {
+                httpOnly: true,
+                secure: true,
+                sameSite: "Strict",                   // optional but recommended
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            }
+            const frontendURL = process.env.FRONTEND_URL;
+            res.status(200)
+                .cookie("accessToken", newAccessToken, options)
+                .cookie("refreshToken", newRefreshToken, options)
+                .json({ username: updatedUser.username, fullname: updatedUser.fullname })
+            console.log({ username: updatedUser.username, fullname: updatedUser.fullname })
             return
 
         });
@@ -388,23 +452,19 @@ connectDB()
             }
             const testDriveAccess = await verifyGoogleAccessToken(comingGoogleAccessToken)
             if (!testDriveAccess) {
-
                 return res.status(401).send("google access token has been expired")
             }
             const frontendURL = process.env.FRONTEND_URL;
-            const tempUser = req.session.tempUser
-            res.setHeader("Access-Control-Allow-Origin", process.env.FRONTENT_URL);
-            res.setHeader("Access-Control-Allow-Credentials", "true");
+            // res.setHeader("Access-Control-Allow-Origin", process.env.FRONTENT_URL);
+            // res.setHeader("Access-Control-Allow-Credentials", "true");
 
             // return res.redirect(`${frontendURL}/admindashboard?username=${encodeURIComponent(tempUser.username)}&fullname=${encodeURIComponent(tempUser.fullname)}`);
-            return res.json({
-                success: true,
-                redirectUrl: `${frontendURL}/admindashboard?username=${tempUser.username}&fullname=${tempUser.fullname}`
-            });
+            return res.status(200).send("google acc tok is CORRECT")
 
         })
 
         app.get("/first-google-login-redirector", async (req, res) => {
+            console.log("first google login trigger hua triger hua")
             const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
             // const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
             // const REDIRECT_URI = 'https://clientsprojectfrontend.onrender.com/';
@@ -430,6 +490,7 @@ connectDB()
         })
 
         app.get("/oauth2callback", async (req, res) => {   // google call backs the code to this path
+            console.log("oauth2callback triger hua")
             const code = req.query.code
             if (!code) {
                 return res.status(400).send("No temporary code received");
@@ -456,27 +517,29 @@ connectDB()
             const newGoogleAccessToken = tokenData.access_token
             const newGoogleRefreshToken = tokenData.refresh_token
 
-            const tempUser = req.session.tempUser;
-            if (!tempUser) return res.status(401).send("Session expired");
 
-            const appAccessToken = generateAccessToken(tempUser.username);
-            const appRefreshToken = generateRefreshToken(tempUser.username);
-
-            const updatedUser = await updateRefreshTokensInDatabase(tempUser.username, appRefreshToken, newGoogleRefreshToken)
+            // const appAccessToken = generateAccessToken(tempUser.username);
+            // const appRefreshToken = generateRefreshToken(tempUser.username);
+            const username = process.env.ADMIN_CHOSEN_USERNAME
+            const updatedUser = await updateGoogleRefreshTokenInDatabase(username, newGoogleRefreshToken)
             if (!updatedUser) {
                 return res.status(404).send("user not in db while updating tokens in db")
             }
 
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: true,
+                sameSite: "Strict",                   // optional but recommended
+                maxAge: 7 * 24 * 60 * 60 * 1000
+
             }
-            const frontendURL = process.env.FRONTEND_URL;
+
             res.status(200)
-                .cookie("accessToken", appAccessToken, options)
-                .cookie("refreshToken", appRefreshToken, options)
+                // .cookie("accessToken", appAccessToken, options)
+                // .cookie("refreshToken", appRefreshToken, options)
                 .cookie("googleAccessToken", newGoogleAccessToken, options)
                 .cookie("googleRefreshToken", newGoogleRefreshToken, options)
+                .redirect(`${process.env.FRONTEND_URL}/admindashboard`)
             // .json({ access_token: tokenData.access_token })
             // res.send("ok ok"||"i have changed permissions of file")
             return;
@@ -520,7 +583,7 @@ connectDB()
             // const googleAccessToken = req.cookies?.googleAccessToken
             // const username = req.query?.username
 
-            const googleAccessToken = req.cookies?.googleAccessToken
+            const googleAccessToken = req.cookies.googleAccessToken
             const username = req.query.username
             if (!username) {
                 return res.status(404).send("No username send")
@@ -759,13 +822,13 @@ connectDB()
             const fileName = req.headers['x-file-name'];
             const virtualParent = req.query.virtualParent;
             const virtualBranch = req.query.virtualBranch;
-      
 
-            if(!accessToken){
+
+            if (!accessToken) {
                 return res.status(404).send("No acess token present")
             }
 
-            if(!(parentFolderId && username && fileName && virtualParent && virtualBranch)){
+            if (!(parentFolderId && username && fileName && virtualParent && virtualBranch)) {
                 return res.status(404).send("no other credentials present")
             }
 
@@ -773,7 +836,7 @@ connectDB()
             const contentType = req.headers['x-mime-type'];
 
 
-      
+
             async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
                 try {
                     const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
@@ -824,9 +887,9 @@ connectDB()
             if (!uploadUrl) {
                 return res.status(401).send("Google access token expired or some other issue");
             }
-            
+
             let offset = await checkUploadedRange(uploadUrl, accessToken);
-            
+
 
             const MIN_CHUNK_SIZE = 8 * 1024 * 1024; // 8mb
             const uploadStream = new PassThrough();
@@ -836,9 +899,9 @@ connectDB()
             let chunkCounter = 0;
 
             uploadStream.on("data", async (chunk) => {
-                uploadStream.pause(); 
+                uploadStream.pause();
                 buffer = Buffer.concat([buffer, chunk]);
-               
+
                 while (buffer.length >= MIN_CHUNK_SIZE) {
                     const chunkToSend = buffer.slice(0, MIN_CHUNK_SIZE);
                     buffer = buffer.slice(MIN_CHUNK_SIZE);
@@ -914,6 +977,7 @@ connectDB()
 
                             const statusWithInfo = await pushFileInfoInDatabase(
                                 user._id,
+                                username,
                                 info.id,
                                 fileName,
                                 virtualParent,
@@ -930,13 +994,13 @@ connectDB()
                         res.status(500).send("Final chunk upload error");
                     }
                 } else {
-                    
+
                     res.status(200).send("Upload completed");
                 }
             });
 
             uploadStream.on("error", (err) => {
-                console.error("Stream error:", err);
+                console.log("Stream error:", err);
                 res.status(500).send("Stream error");
             });
 
@@ -946,21 +1010,80 @@ connectDB()
             });
         });
 
+        app.post("/deletefile", async (req, res) => {
+            // console.log("all cookies", req.cookies)
+            // const username = "shivam1"
+            const comingGoogleAccessToken = req.cookies.googleAccessToken
+            // console.log(comingGoogleAccessToken)
+            const fileId = req.query.fileId
+            const username = req.query.username
+            if (!comingGoogleAccessToken) {
+                console.log("cannot delete file access token is not available")
+                return res.status(404).send("cannot delete file access token is not available")
+            }
+            if (!fileId) {
+                console.log("file id is not available")
+                return res.status(404).send("file id is not available")
+            }
+            const flag = verifyGoogleAccessToken(comingGoogleAccessToken)
+            if (!flag) {
+                return res.status(401).send("google access token expired")
+            }
+
+
+            const driveDeletionStatus = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${comingGoogleAccessToken}`
+                }
+            })
+
+            if (!driveDeletionStatus.ok) {
+                const err = await driveDeletionStatus.json()
+                if (err.error.code === 404) {
+                    const statusInDb = await popFileInfoInDatabase(fileId, username)
+                    if (!statusInDb) {
+                        console.log("cannot pop file from db due to some error but deleted in drive successfuly")
+                        return res.status(403).send("cannot pop file from db due to some error but deleted in drive successfuly")
+                    }
+                    res.status(200).send("File deleted successfully")
+                    return
+                }
+                console.log("file not deleted incorrect file id or access token just expired")
+                console.log(err)
+                return res.status(402).send("file not deleted incorrect file id or access token just expired")
+            }
+            const statusInDb = await popFileInfoInDatabase(fileId)
+            if (!statusInDb) {
+                console.log("cannot pop file from db due to some error but deleted in drive successfuly")
+                return res.status(403).send("cannot pop file from db due to some error but deleted in drive successfuly")
+            }
+            res.status(200).send("File deleted successfully")
+            return
+        })
+
 
 
         app.get("/get-files-list", async (req, res) => {
+            console.log("files route hit")
 
-    
+
             const virtualparent = req.query.subject
             const virtualbranch = req.query.branch
 
-
-            const username = "shivam1"
-            const user = await findUserByUsername(username)
-            if (!user) {
-                return res.status(401).send("User not found")
+            if (!virtualparent) {
+                console.log("p not f")
+                return res.status(404).send("virtualparent not found")
             }
-            const newUser = await findUserByUsername(user.username)
+            if (!virtualbranch) {
+                console.log("b not f")
+                return res.status(404).send("virtualbranch not found")
+            }
+
+
+
+            const username = process.env.ADMIN_CHOSEN_USERNAME
+            const newUser = await findUserByUsername(username)
             if (!newUser) {
                 return res.status(404).send("user not found")
             }
@@ -969,9 +1092,45 @@ connectDB()
                 virtualparent: virtualparent,
                 virtualbranch: virtualbranch
             });
-            if (!filesList) {
+            if (!filesList.length) {
                 return res.status(404).send("no files found")
             }
+            // console.log(filesList)
+            return res.status(200).json(filesList)
+
+        })
+        app.get("/get-files-list-admin", async (req, res) => {
+            console.log("files route hit")
+
+            const virtualparent = req.query.subject
+
+
+            if (!virtualparent) {
+                console.log("p not f")
+                return res.status(404).send("virtualparent not found")
+            }
+
+
+
+
+            const username = process.env.ADMIN_CHOSEN_USERNAME
+            const user = await findUserByUsername(username)
+            if (!user) {
+                return res.status(404).send("User not found")
+            }
+            const newUser = await findUserByUsername(user.username)
+            if (!newUser) {
+                return res.status(404).send("user not found")
+            }
+            const filesList = await File.find({
+                userid: newUser._id,
+                virtualparent: virtualparent
+
+            });
+            if (!filesList.length) {
+                return res.status(404).send("no files found")
+            }
+            // console.log(filesList)
             return res.status(200).json(filesList)
 
         })
@@ -979,7 +1138,7 @@ connectDB()
         app.get("/get-subjects-list", async (req, res) => {
             console.log("subject route hit")
 
-            const username = "shivam1"
+            const username = process.env.ADMIN_CHOSEN_USERNAME
             const user = await findUserByUsername(username)
             if (!user) {
                 res.status(404).send("user not found")
@@ -999,7 +1158,7 @@ connectDB()
             // const virtualbranch = req.query.virtualbranch
             const virtualparent = req.query.virtualparent
 
-            const username = "shivam1"
+            const username = process.env.ADMIN_CHOSEN_USERNAME
             const user = await findUserByUsername(username)
             if (!user) {
                 res.status(404).send("user not found")
@@ -1023,6 +1182,7 @@ connectDB()
         })
     })
     .catch((error) => {
+        console.log(error)
     })
 
 

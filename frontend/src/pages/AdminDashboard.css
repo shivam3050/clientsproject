@@ -93,7 +93,10 @@
     height: 5%;
     width: 100%;
     display: flex;
+    gap: 10px;
+    font-weight: 800;
     justify-content: end;
+    align-items: center;
 
 }
 

@@ -270,8 +270,11 @@ connectDB()
 
 
         app.post("/usernamelogin", async (req, res) => {
-            // requires {username,password}
-            //output username fullname accessToken
+            const accesstookken = req.cookies?.accessToken
+            if(accesstookken){
+                console.log(accesstookken,"  available was.")
+            }
+        
             try {
                 if (mongoose.connection.readyState !== 1) {
                     res.status(501).send("Not connected to MongoDB");
@@ -341,14 +344,10 @@ connectDB()
                     const options = {
                         httpOnly: true,
                         secure: true,
-                        sameSite: "Strict",                   // optional but recommended
+                        sameSite: "None",                   // optional but recommended
                         maxAge: 7 * 24 * 60 * 60 * 1000
 
                     }
-
-
-                    // res.status(200).send("ok");
-                    // return;
 
 
                     const frontendURL = process.env.FRONTEND_URL;
@@ -357,8 +356,6 @@ connectDB()
                         .cookie("refreshToken", newRefreshToken, options)
                         .json({ username: updatedUser.username, fullname: updatedUser.fullname })
                     return
-
-
 
                 } else {
                     return res.status(401).send("Invalid credentials")

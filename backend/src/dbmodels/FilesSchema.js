@@ -15,6 +15,7 @@ const filesSchema = new Schema(
             required:true
         },
         filesize:Number
+        
     }
 )
 export const File = mongoose.model("File",filesSchema)

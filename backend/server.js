@@ -411,7 +411,7 @@ connectDB()
             const REDIRECT_URI = `${process.env.BACKEND_URL}/oauth2callback`;
             // let scope = ['email', 'profile'].join(' ');
             // let scope = "https://www.googleapis.com/auth/drive.metadata.readonly";
-            let scope = "https://www.googleapis.com/auth/drive"
+            let scope = "https://www.googleapis.com/auth/drive.file"
 
             const params = new URLSearchParams({
                 client_id: CLIENT_ID,
@@ -581,171 +581,171 @@ connectDB()
 
         })
 
-        app.post("/uploadfilemy", async (req, res) => {  // mycode
-            // const accesstoken = req.cookies?.googleAccessToken;
-            // const parentfolderid = req.query?.parentFolderId;
-            // const username = req.query?.username
-            // const filename = req.headers['x-file-name']
-            // const virtualparent = req.query?.virtualParent
-            // const totalSize = parseInt(req.headers['content-length']);
-            // const contentType = req.headers['x-mime-type']
+        // app.post("/uploadfilemy", async (req, res) => {  // mycode
+        //     // const accesstoken = req.cookies?.googleAccessToken;
+        //     // const parentfolderid = req.query?.parentFolderId;
+        //     // const username = req.query?.username
+        //     // const filename = req.headers['x-file-name']
+        //     // const virtualparent = req.query?.virtualParent
+        //     // const totalSize = parseInt(req.headers['content-length']);
+        //     // const contentType = req.headers['x-mime-type']
 
 
 
 
-            async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
-                // let response;
-                try {
-                    const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${accessToken}`,
-                            "Content-Type": "application/json; charset=UTF-8",
-                            "X-Upload-Content-Type": req.headers['x-mime-type'],
-                            "X-Upload-Content-Length": req.headers['x-file-size'],
-                        }
-                        ,
-                        body: JSON.stringify({
-                            name: path.basename(fileName),
-                            parents: [parentFolderId]
-                        })
-                    });
-                    if (!response.ok) {
-                        return null
-                    }
-                    const uploadUrl = response.headers.get("location");
-                    return uploadUrl;
-                } catch (error) {
-                    return null
-                }
-            }
+        //     async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
+        //         // let response;
+        //         try {
+        //             const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+        //                 method: "POST",
+        //                 headers: {
+        //                     "Authorization": `Bearer ${accessToken}`,
+        //                     "Content-Type": "application/json; charset=UTF-8",
+        //                     "X-Upload-Content-Type": req.headers['x-mime-type'],
+        //                     "X-Upload-Content-Length": req.headers['x-file-size'],
+        //                 }
+        //                 ,
+        //                 body: JSON.stringify({
+        //                     name: path.basename(fileName),
+        //                     parents: [parentFolderId]
+        //                 })
+        //             });
+        //             if (!response.ok) {
+        //                 return null
+        //             }
+        //             const uploadUrl = response.headers.get("location");
+        //             return uploadUrl;
+        //         } catch (error) {
+        //             return null
+        //         }
+        //     }
 
 
-            const accesstoken = req.cookies?.googleAccessToken;
-            const parentfolderid = req.query?.parentFolderId;
-            const username = req.query?.username
-            const filename = req.headers['x-file-name']
-            const virtualparent = req.query?.virtualParent
-            const totalSize = parseInt(req.headers['content-length']);
-            const contentType = req.headers['x-mime-type']
-            const fileSize = parseInt(req.headers['x-file-size']);
+        //     const accesstoken = req.cookies?.googleAccessToken;
+        //     const parentfolderid = req.query?.parentFolderId;
+        //     const username = req.query?.username
+        //     const filename = req.headers['x-file-name']
+        //     const virtualparent = req.query?.virtualParent
+        //     const totalSize = parseInt(req.headers['content-length']);
+        //     const contentType = req.headers['x-mime-type']
+        //     const fileSize = parseInt(req.headers['x-file-size']);
 
 
-            const uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
+        //     const uploadUrl = await resumableUploadLinkCreator(accesstoken, parentfolderid, filename);
 
-            if (!uploadUrl) {
-                return res.status(401).send("google access to expired so upload url cannot be created")
-            }
-
-
-            const MIN_CHUNK_SIZE = 1024 * 1293; // min 256kb   ,  1 = 1 byte
-            let buffer = Buffer.alloc(0);
-            let offset = 0;
-
-            let i = 0
-
-            let j = 0
-            req.on("data", async (chunk) => {
-                await new Promise(resolve => setTimeout(resolve, 4000));
-                i++
-
-                req.pause();
-
-                buffer = Buffer.concat([buffer, chunk]);
-
-                if (buffer.length >= MIN_CHUNK_SIZE) {
-                    const completedChunkToSend = buffer.slice(0, MIN_CHUNK_SIZE);
-                    const remainingBuffer = buffer.slice(MIN_CHUNK_SIZE);
-                    buffer = remainingBuffer
-
-                    const start = offset;
-                    const end = offset + completedChunkToSend.length - 1;
-
-                    const contentRange = `bytes ${start}-${end}/${totalSize}`;
-                    const t0 = process.hrtime.bigint(); // High-res time
-
-                    const response = await fetch(uploadUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Length': completedChunkToSend.length.toString(),
-                            'Content-Range': contentRange,
-                            'Content-Type': contentType
-                        },
-                        body: completedChunkToSend
-                    });
-
-                    const t1 = process.hrtime.bigint();
-                    const durationSeconds = Number(t1 - t0) / 1e9; // seconds
-                    const speedMBps = (completedChunkToSend.length / (1024 * 1024)) / durationSeconds;
-
-                    if (!response.ok) {
-                        const err = await response.text();
-                        return res.status(500).send("Some rrr ocured in");
-                    }
-
-                    offset += completedChunkToSend.length;
+        //     if (!uploadUrl) {
+        //         return res.status(401).send("google access to expired so upload url cannot be created")
+        //     }
 
 
-                }
+        //     const MIN_CHUNK_SIZE = 1024 * 1293; // min 256kb   ,  1 = 1 byte
+        //     let buffer = Buffer.alloc(0);
+        //     let offset = 0;
 
-                req.resume();
-            });
+        //     let i = 0
 
-            req.on("end", async () => {
-                j++
-                res.send("")
-                if (buffer.length > 0) {
-                    const start = offset;
-                    const end = offset + buffer.length - 1;
-                    const contentRange = `bytes ${start}-${end}/${totalSize}`;
+        //     let j = 0
+        //     req.on("data", async (chunk) => {
+        //         await new Promise(resolve => setTimeout(resolve, 4000));
+        //         i++
 
-                    const response = await fetch(uploadUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Length': buffer.length.toString(),
-                            'Content-Range': contentRange,
-                            'Content-Type': req.headers['x-mime-type']
-                        },
-                        body: buffer
-                    });
+        //         req.pause();
 
-                    if (!response.ok) {
-                        const err = await response.text();
-                        console.error("Final chunk upload failed:", err);
-                        return res.status(500).send("Final upload failed");
-                    }
-                    const info = await response.json()
+        //         buffer = Buffer.concat([buffer, chunk]);
+
+        //         if (buffer.length >= MIN_CHUNK_SIZE) {
+        //             const completedChunkToSend = buffer.slice(0, MIN_CHUNK_SIZE);
+        //             const remainingBuffer = buffer.slice(MIN_CHUNK_SIZE);
+        //             buffer = remainingBuffer
+
+        //             const start = offset;
+        //             const end = offset + completedChunkToSend.length - 1;
+
+        //             const contentRange = `bytes ${start}-${end}/${totalSize}`;
+        //             const t0 = process.hrtime.bigint(); // High-res time
+
+        //             const response = await fetch(uploadUrl, {
+        //                 method: 'PUT',
+        //                 headers: {
+        //                     'Content-Length': completedChunkToSend.length.toString(),
+        //                     'Content-Range': contentRange,
+        //                     'Content-Type': contentType
+        //                 },
+        //                 body: completedChunkToSend
+        //             });
+
+        //             const t1 = process.hrtime.bigint();
+        //             const durationSeconds = Number(t1 - t0) / 1e9; // seconds
+        //             const speedMBps = (completedChunkToSend.length / (1024 * 1024)) / durationSeconds;
+
+        //             if (!response.ok) {
+        //                 const err = await response.text();
+        //                 return res.status(500).send("Some rrr ocured in");
+        //             }
+
+        //             offset += completedChunkToSend.length;
 
 
-                    try {
-                        const user = await findUserByUsername(username)
-                        if (!user) {
-                            return res.status(404).send("user not exists after uploading file")
-                        }
+        //         }
 
-                        const statusWithInfo = await pushFileInfoInDatabase(
+        //         req.resume();
+        //     });
 
-                            user._id,
-                            info.id,
-                            filename,
-                            virtualparent,
-                            totalSize
-                        )
-                        res.status(200).json(statusWithInfo);
+        //     req.on("end", async () => {
+        //         j++
+        //         res.send("")
+        //         if (buffer.length > 0) {
+        //             const start = offset;
+        //             const end = offset + buffer.length - 1;
+        //             const contentRange = `bytes ${start}-${end}/${totalSize}`;
 
-                    } catch (error) {
-                        return res.status(404).send("uploaded in cloud but not linked in db")
-                    }
+        //             const response = await fetch(uploadUrl, {
+        //                 method: 'PUT',
+        //                 headers: {
+        //                     'Content-Length': buffer.length.toString(),
+        //                     'Content-Range': contentRange,
+        //                     'Content-Type': req.headers['x-mime-type']
+        //                 },
+        //                 body: buffer
+        //             });
 
-                }
-            });
+        //             if (!response.ok) {
+        //                 const err = await response.text();
+        //                 console.error("Final chunk upload failed:", err);
+        //                 return res.status(500).send("Final upload failed");
+        //             }
+        //             const info = await response.json()
 
-            req.on("error", (err) => {
-                console.error("Stream error:", err);
-                return res.status(500).send("Stream error");
-            });
 
-        });
+        //             try {
+        //                 const user = await findUserByUsername(username)
+        //                 if (!user) {
+        //                     return res.status(404).send("user not exists after uploading file")
+        //                 }
+
+        //                 const statusWithInfo = await pushFileInfoInDatabase(
+
+        //                     user._id,
+        //                     info.id,
+        //                     filename,
+        //                     virtualparent,
+        //                     totalSize
+        //                 )
+        //                 res.status(200).json(statusWithInfo);
+
+        //             } catch (error) {
+        //                 return res.status(404).send("uploaded in cloud but not linked in db")
+        //             }
+
+        //         }
+        //     });
+
+        //     req.on("error", (err) => {
+        //         console.error("Stream error:", err);
+        //         return res.status(500).send("Stream error");
+        //     });
+
+        // });
 
 
 
@@ -1024,3 +1024,18 @@ connectDB()
     })
     .catch((error) => {
     })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

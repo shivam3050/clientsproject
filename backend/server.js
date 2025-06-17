@@ -270,10 +270,7 @@ connectDB()
 
 
         app.post("/usernamelogin", async (req, res) => {
-            const accesstookken = req.cookies?.accessToken
-            if (accesstookken) {
-                console.log(accesstookken, "  available was.")
-            }
+
 
             try {
                 if (mongoose.connection.readyState !== 1) {

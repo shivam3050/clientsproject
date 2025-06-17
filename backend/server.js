@@ -341,7 +341,8 @@ connectDB()
                     const options = {
                         httpOnly: true,
                         secure: true,
-                        sameSite: "Lax",                   // optional but recommended
+                        sameSite: "Lax",
+                        path: "/"  ,                   // optional but recommended
                         maxAge: 7 * 24 * 60 * 60 * 1000
 
                     }
@@ -382,9 +383,9 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",                  
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-                path: "/"  
+                sameSite: "Lax",
+                path: "/"  ,                  
+                maxAge: 7 * 24 * 60 * 60 * 1000
 
             }
             return res
@@ -433,7 +434,8 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",                   // optional but recommended
+                sameSite: "Lax",
+                path: "/"  ,                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
             const frontendURL = process.env.FRONTEND_URL;
@@ -529,7 +531,8 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",                   // optional but recommended
+                sameSite: "Lax",
+                path: "/"  ,                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
 
             }

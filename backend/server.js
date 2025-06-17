@@ -977,6 +977,7 @@ connectDB()
         })
 
         app.get("/get-subjects-list", async (req, res) => {
+            console.log("subject route hit")
 
             const username = "shivam1"
             const user = await findUserByUsername(username)

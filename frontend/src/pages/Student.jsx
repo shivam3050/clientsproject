@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import "./Student.css"
 import StudentBody from "./StudentBody";
 let isMenuAsideOn = false;
@@ -83,7 +84,7 @@ const Studentt = () => {
       </header>
       <main>
         <ul>
-          <li><a href="/admin" target="_blank" rel="noopener noreferrer" onClick={() => { MenuLoaderButton(); }}>Admin</a></li>
+          <li><Link to="/admin" onClick={() => { MenuLoaderButton(); }}>Admin</Link></li>
           <li>About</li>
         </ul>
       </main>

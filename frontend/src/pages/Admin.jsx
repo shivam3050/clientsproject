@@ -1,6 +1,7 @@
 import AdminBody from "./AdminBody";
 // import { useNavigate } from "react-router-dom";
 import "./Admin.css"
+import { Link } from "react-router-dom";
 
 let isMenuAsideOn = false;
 
@@ -57,7 +58,7 @@ const Adminn = ()=>{
           </header>
           <main>
           <ul>
-            <li><a href="/student" target="_blank" className="" rel="noopener noreferrer" onClick={()=>{MenuLoaderButton();}}>Student</a></li>
+            <li><Link to="/student" onClick={()=>{MenuLoaderButton();}}>Student</Link></li>
             <li>About</li>
           </ul>
           </main>

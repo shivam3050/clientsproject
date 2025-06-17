@@ -1,6 +1,6 @@
 
 
-import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 import "./StudentSubjectDetail.css";
 

@@ -221,7 +221,7 @@ connectDB()
         }))
         app.use(express.json());
         app.use(cookieParser());
-        
+
         app.get("/", (req, res) => {
             res.send("New Client connected : ", req.headers.host)
             return
@@ -271,10 +271,10 @@ connectDB()
 
         app.post("/usernamelogin", async (req, res) => {
             const accesstookken = req.cookies?.accessToken
-            if(accesstookken){
-                console.log(accesstookken,"  available was.")
+            if (accesstookken) {
+                console.log(accesstookken, "  available was.")
             }
-        
+
             try {
                 if (mongoose.connection.readyState !== 1) {
                     res.status(501).send("Not connected to MongoDB");
@@ -328,7 +328,7 @@ connectDB()
                 };
                 const user = await findUserByUsername(username)
                 if (!user) {
-                    console.log(username,"userrrnaame")
+                    console.log(username, "userrrnaame")
                     console.log("reeeerrr")
                     return res.status(404).send("User not found")
                 }
@@ -384,7 +384,10 @@ connectDB()
             }
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: true,
+                sameSite: "Lav",                  
+                maxAge: 7 * 24 * 60 * 60 * 1000
+
             }
             return res
                 .status(200)

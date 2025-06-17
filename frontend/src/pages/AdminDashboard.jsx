@@ -323,7 +323,8 @@ const AdminDashboard = () => {
                         ).then(() => {
                             // localStorage.removeItem("loggedInUsername");
                             // localStorage.removeItem("fullname");
-                            navigate("/admin"); ("sign outed")
+                            alert("logout successfully")
+                            navigate("/admin"); 
                         })
                     }
                 })

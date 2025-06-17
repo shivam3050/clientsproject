@@ -440,7 +440,7 @@ connectDB()
                 .cookie("accessToken", newAccessToken, options)
                 .cookie("refreshToken", newRefreshToken, options)
                 .json({ username: updatedUser.username, fullname: updatedUser.fullname })
-            console.log({ username: updatedUser.username, fullname: updatedUser.fullname })
+            console.log("yes you are logged out",updatedUser.username)
             return
 
         });

@@ -447,18 +447,18 @@ connectDB()
         app.get("/test-google-access-token", async (req, res) => {
             const comingGoogleAccessToken = req.cookies?.googleAccessToken
             if (!comingGoogleAccessToken) {
-                return res.status(404).send("google access token is not available test google access token")
+                return res.status(404).send("404google access token is not available test google access token")
             }
             const testDriveAccess = await verifyGoogleAccessToken(comingGoogleAccessToken)
             if (!testDriveAccess) {
-                return res.status(401).send("google access token has been expired")
+                return res.status(401).send("401google access token has been expired")
             }
             const frontendURL = process.env.FRONTEND_URL;
             // res.setHeader("Access-Control-Allow-Origin", process.env.FRONTENT_URL);
             // res.setHeader("Access-Control-Allow-Credentials", "true");
 
             // return res.redirect(`${frontendURL}/admindashboard?username=${encodeURIComponent(tempUser.username)}&fullname=${encodeURIComponent(tempUser.fullname)}`);
-            return res.status(200).send("google acc tok is CORRECT")
+            return res.status(200).send("CORR200 GOOGLE ACCESS TOEK tok is CORRECT")
 
         })
 

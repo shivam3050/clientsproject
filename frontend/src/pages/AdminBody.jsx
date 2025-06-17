@@ -97,6 +97,7 @@ const AdminBody = () => {
         const Admin = new AutoLogin()
         const user = await Admin.testAccessTokenWithLoginAccess()
         if (!user) {
+            alert("some error occured auto login handler")
             // await Admin.testGoogleAccessTokenIfNotThenUpdate()
             return
         } else {

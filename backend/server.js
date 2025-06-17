@@ -528,7 +528,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Strict",                   // optional but recommended
+                sameSite: "None",                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
 
             }

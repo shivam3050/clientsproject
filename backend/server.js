@@ -325,6 +325,8 @@ connectDB()
                 };
                 const user = await findUserByUsername(username)
                 if (!user) {
+                    console.log(username,"userrrnaame")
+                    console.log("reeeerrr")
                     return res.status(404).send("User not found")
                 }
 

@@ -24,7 +24,11 @@ const AdminDashboard = () => {
             }
             const Google = new CreateGoogleCloudbase(username)
             setGooglecloudbaseid(await Google.create())
-            localStorage.setItem("googleCloudbaseId",googlecloudbaseid)
+            const recievedid = await Google.create()
+            if(!recievedid){
+                return
+            }
+            localStorage.setItem("googleCloudbaseId",recievedid)
         }
         cloudbaseUseeffectController()
     }, [])

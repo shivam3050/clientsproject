@@ -60,7 +60,10 @@ export const AdminSignin = () => {
 
     useEffect(() => {
         const autoLoginController = async () => {
-            await autoLoginHandler()
+            const result = await autoLoginHandler()
+            if(!result){
+                return
+            }
         }
         autoLoginController()
     })

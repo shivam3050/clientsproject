@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
-import { handleUpload } from "../controller/FileController"
+import { handleDelete, handleUpload } from "../controller/FileController"
 
 export const AdminSubjectDetail = () => {
     const params = useParams()
@@ -36,12 +36,16 @@ export const AdminSubjectDetail = () => {
                 console.log("no subject provided to useffetct")
                 return
             }
-
-            setFiles(await getFiles(subject))
+         
+            const recievedfiles = await getFiles(subject)
+            if(!recievedfiles){
+                return
+            }
+            setFiles(recievedfiles)
 
         }
         useEffectFilesController()
-    })
+    },[subject])
     return (
         subject ? (
             <div className="subject-container">
@@ -55,10 +59,19 @@ export const AdminSubjectDetail = () => {
                         <input type="file" name="filepicker" id="" />
                         <div className="file-branch-section">
                             <div>
-                                <input type="radio" name="" id="" value="Notes" />Notes
+                                <input type="radio" name="branch"  value="Notes" checked />Notes
                             </div>
                             <div>
-                                <input type="radio" name="" id="" value="Previous Year Papers" />Previous Year Papers
+                                <input type="radio" name="branch"  value="Books" />Books
+                            </div>
+                            <div>
+                                <input type="radio" name="branch"  value="Previous Year Papers" />Previous Year Papers
+                            </div>
+                            <div>
+                                <input type="radio" name="branch"  value="Short Tricks" />Short Tricks
+                            </div>
+                            <div>
+                                <input type="radio" name="branch"  value="Custom Notes" />Custom Notes
                             </div>
                         </div>
 
@@ -85,7 +98,18 @@ export const AdminSubjectDetail = () => {
                 <section className="list-files-section">
                     {files ? (
                         files.map((item, index) => {
-                            return (<div key={index}>{decodeURIComponent(item.filename)}</div>)
+                            return (<div className="file-card-admin" key={index}>
+                                <div>
+                                {decodeURIComponent(item.filename).slice(0,12)}
+
+                                </div>
+                                <div>
+                                    {decodeURIComponent(item.filesize).slice(0,8)} bytes
+                                </div>
+                                <div>
+                                    <button style={{color:"white",backgroundColor:"red",borderRadius:"2px"}} onClick={(e)=>{handleDelete(e,item)}}>Delete</button>
+                                </div>
+                                </div>)
                         })
                     ) : (<p>No files recievd</p>)}
                 </section>

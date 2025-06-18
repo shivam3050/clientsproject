@@ -157,3 +157,29 @@
 }
 
 
+
+
+
+
+
+
+
+
+.file-card-admin{
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.4s ease-in;
+}
+.file-card-admin > :nth-child(1){
+  flex: 2;
+}
+.file-card-admin > :nth-child(2){
+  flex: 1;
+}
+.file-card-admin > :nth-child(3){
+  flex: 1;
+}
+
+.fade-out{
+  opacity: 0;
+}

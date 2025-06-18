@@ -6,7 +6,7 @@ export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
     const username = localStorage.getItem("loggedInUsername")
     const googlecloudbaseid = localStorage.getItem("googleCloudbaseId")
 
-    if(!googlecloudbaseid || !username || !file || !virtualBranch || !virtualParent){
+    if(!googlecloudbaseid){
         console.log("ggoglecloudbase are not met")
         return null
     }

@@ -15,20 +15,23 @@ const AdminDashboard = () => {
     const navigate = useNavigate()
     const [googlecloudbaseid, setGooglecloudbaseid] = useState(null)
     const username = localStorage.getItem("loggedInUsername")
+    const [backButton, setBackButton] = useState(true)
 
     useEffect(() => {
         const cloudbaseUseeffectController = async () => {
+            const button = document.getElementById("backbutton")
+            button.style.display = "block"
             if (googlecloudbaseid) {
-                
+
                 return
             }
             const Google = new CreateGoogleCloudbase(username)
             setGooglecloudbaseid(await Google.create())
             const recievedid = await Google.create()
-            if(!recievedid){
+            if (!recievedid) {
                 return
             }
-            localStorage.setItem("googleCloudbaseId",recievedid)
+            localStorage.setItem("googleCloudbaseId", recievedid)
         }
         cloudbaseUseeffectController()
     }, [])
@@ -36,7 +39,12 @@ const AdminDashboard = () => {
     const connectGoogleDrive = async () => {
         window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`
     }
+    const handleBackToDashboard = (e) => {
 
+        const button = document.getElementById("backbutton")
+        button.style.display = "none"
+        navigate(-1)
+    }
     const handleLogout = async () => {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
             {
@@ -93,7 +101,12 @@ const AdminDashboard = () => {
                     Admin DashBoard
                 </h1>
                 <div>
-                    {(googlecloudbaseid) ? (<span style={{ color: "blue"}}>Connected to drive!!</span>) : (<button onClick={connectGoogleDrive} style={{ color: "white", backgroundColor: "red" }}>connect drive</button>)}  <button style={{ color: "black" }} onClick={handleLogout}>Logout</button>
+                    <div>
+                        {(googlecloudbaseid) ? (<span style={{ color: "blue" }}>Connected to drive!!</span>) : (<button onClick={connectGoogleDrive} style={{ color: "white", backgroundColor: "red" }}>connect drive</button>)}
+
+                    </div>
+                    {(backButton) ? (<button id="backbutton" onClick={(e) => { handleBackToDashboard(e) }}>🔙</button>) : (null)}
+                    <button onClick={handleLogout}>Logout</button>
                 </div>
             </div>
             <Outlet />

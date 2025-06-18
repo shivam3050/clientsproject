@@ -107,7 +107,7 @@ export const AdminSubjectDetail = () => {
                                     {decodeURIComponent(item.filesize).slice(0,8)} bytes
                                 </div>
                                 <div>
-                                    <button style={{color:"white",backgroundColor:"red",borderRadius:"2px"}} onClick={(e)=>{handleDelete(e,item)}}>Delete</button>
+                                    <button style={{color:"white",backgroundColor:"red"}} onClick={(e)=>{handleDelete(e,item)}}>Delete</button>
                                 </div>
                                 </div>)
                         })

@@ -71,8 +71,8 @@ export const AdminSignin = () => {
         <section className="signin-box">
             <label htmlFor="">Admin Login</label>
             <form action="" className="inputs" onSubmit={(e)=>{handleManualLogin(e)}}>
-                <input type="text" name="username" placeholder="Enter username" />
-                <input type="password" name="password" placeholder="Enter password" />
+                <input required type="text" name="username" placeholder="Enter username" />
+                <input required type="password" name="password" placeholder="Enter password" />
                 <label ref={errLog}></label>
                 <input type="submit" value="Submit" />
             </form>

@@ -82,12 +82,12 @@ export function handleDelete(e, item) {
             alert("not deletd")
             return
         }
-        e.target.parentElement.classList.add("fade-out")
+        e.target.parentElement.parentElement.classList.add("fade-out")
         setTimeout(() => {
-            e.target.parentElement.remove()
-        }, 400)
+            e.target.parentElement.parentElement.remove()
+        }, 500)
     }
-    const confirmed = window.confirm(`Are you sure to delete ${item.filename}`)
+    const confirmed = window.confirm(`Are you sure to delete ${decodeURIComponent(item.filename)}`)
     if (!confirmed) {
         return
     }

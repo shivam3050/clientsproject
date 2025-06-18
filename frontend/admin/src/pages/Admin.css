@@ -1,0 +1,152 @@
+/*admin-main*/
+
+
+.admin-main {
+  background-color: #3c3c3c;
+  min-height: 720px;
+  min-width: 405px;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+}
+.admin-main-header{
+  width: 100%;
+  background-color: black;
+  height: clamp(80px,10vh,160px);
+  font-size: clamp(40px,15vw,80px);
+  display: flex;
+  justify-content: start;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  
+}
+.admin-main-header > *{
+  border: 1px solid white;
+  border-radius: 0px;
+  height: 100%;
+  
+}
+.admin-main-header > :nth-child(1){
+ flex: 3;
+}
+
+.admin-main-body{
+  background-color: #3c3c3c;
+  border: 1px solid white;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-top: clamp(80px, 10vh, 160px);
+}
+
+
+
+
+
+
+
+
+/*signin-box*/
+
+.admin-main-body .signin-box {
+  width: 300px;
+  height: 400px;
+  background-color: black;
+  border: 1px solid white;
+}
+
+
+.signin-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid white;
+  flex-direction: column;
+}
+.signin-box form{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.signin-box form input{
+  display: block;
+  color: black;
+}
+.signin-box form input[type=submit]{
+  color: black;
+}
+
+
+
+
+/*admin-dashboard*/
+.admin-main-body .admin-dashboard-main{
+  border: 1px solid white;
+  width: 90%;
+  height: max-content;
+  display: flex;
+  flex-direction: column;
+}
+.admin-main-body .admin-dashboard-main .admin-dashboard-content{
+  border: 1px solid white;
+  min-height: 560px;
+  width: 100%;
+  
+}
+.admin-dashboard-content .subjectbar{
+  border: 1px solid white;
+  box-sizing: border-box;
+  width: 100%;
+  height: 35px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  background-color: rgb(0, 0, 0);
+  position: sticky;
+}
+.admin-dashboard-content .subjectbar >*{
+  flex: 0 0 auto; 
+  width: 100px;
+  background-color: #3c3c3c;
+}
+.admin-dashboard-content .subject-container{
+  flex: 1;
+  border: 1px solid white;
+  background-color: rgb(60, 60, 60);
+  height: max-content;
+  min-height: calc(80vh - 35px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.subject-container .upload-section{
+  height: calc(80vh / 3.5 - 35px);
+  background-color: rgb(0, 0, 0);
+  display: flex;
+}
+.subject-container .list-files-section{
+  flex: 4;
+  background-color: black;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 5px;
+  column-gap: 5px;
+}
+.subject-container .list-files-section>*{
+  width: 100px;
+  height: 150px;
+  flex-grow: 1;
+  background-color: #3c3c3c;
+}
+
+.upload-section .upload-form{
+
+}
+
+

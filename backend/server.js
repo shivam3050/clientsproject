@@ -535,7 +535,7 @@ connectDB()
                 maxAge: 7 * 24 * 60 * 60 * 1000
 
             }
-
+            console.log("successfully oauthorised and send the cookies of both",username)
             res.status(200)
                 // .cookie("accessToken", appAccessToken, options)
                 // .cookie("refreshToken", appRefreshToken, options)
@@ -581,19 +581,21 @@ connectDB()
 
         })
 
-        app.get("/creategooglecloudbase", async (req, res) => {
+        app.post("/creategooglecloudbase", async (req, res) => {
             // const googleAccessToken = req.cookies?.googleAccessToken
             // const username = req.query?.username
 
             const googleAccessToken = req.cookies.googleAccessToken
             const username = req.query.username
             if (!username) {
+                console.log("No username send")
                 return res.status(404).send("No username send")
             }
             if (!googleAccessToken) {
+                console.log("No google access token send")
                 return res.status(404).send("No google access token send")
             }
-
+            
             const FOLDER_NAME = "AdminCloudBase"
             const folderSchema = {
                 name: FOLDER_NAME,

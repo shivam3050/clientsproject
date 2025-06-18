@@ -133,7 +133,7 @@ export const refreshAccessToken = async () => {
 }
 
 
-class CreateGoogleCloudbase {
+export class CreateGoogleCloudbase {
     #retryCount = 0
     status
     username;
@@ -145,20 +145,23 @@ class CreateGoogleCloudbase {
     }
     async create() {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/creategooglecloudbase?username=${this.username}`, {
-            method: "GET",
+            method: "POST",
             credentials: "include"
         });
         if (response.status === 401) {
             status = response.status
             const err = await response.text()
+            console.log(err)
 
 
             if (this.#retryCount < 2) {
+                console.log("retrying")
                 const flag = await refreshGoogleAccessToken()
                 if (!flag) {
+                    console.log("google refresh token also expired you need to manully login in google ")
                     return null
                 } else {
-
+                
                     const folderid = await this.create()
                     return folderid
                 }
@@ -172,6 +175,7 @@ class CreateGoogleCloudbase {
         if (!response.ok) {
             status = response.status
             const invalidMsg = await response.text()
+            console.log(invalidMsg)
 
             return null
         }

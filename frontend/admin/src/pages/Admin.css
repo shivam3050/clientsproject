@@ -91,6 +91,13 @@
   display: flex;
   flex-direction: column;
 }
+.admin-main-body .admin-dashboard-main .title{
+  display: flex;
+}
+.admin-main-body .admin-dashboard-main .title div{
+  font-size: clamp(12px,7vw,20px);
+}
+
 .admin-main-body .admin-dashboard-main .admin-dashboard-content{
   border: 1px solid white;
   min-height: 560px;

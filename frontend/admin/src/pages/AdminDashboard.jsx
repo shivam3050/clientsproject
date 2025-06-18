@@ -38,7 +38,7 @@ const handleLogout = async () => {
                     ).then(() => {
                         localStorage.removeItem("loggedInUsername");
                         localStorage.removeItem("fullname");
-                        console.log("logout successfully")
+                        console.log("logout successfullyy")
                         navigate("/");
                         return
                     })

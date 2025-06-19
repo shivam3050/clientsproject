@@ -11,16 +11,25 @@ import { CreateGoogleCloudbase, refreshAccessToken } from "../controller/LoginCo
 
 
 
+export const handleBackToDashboardComeBack = () => {
+    const backbtn = document.getElementById("backbutton")
+    backbtn.style.display = "block"
+}
+
 const AdminDashboard = () => {
     const navigate = useNavigate()
     const [googlecloudbaseid, setGooglecloudbaseid] = useState(null)
     const username = localStorage.getItem("loggedInUsername")
-    const [backButton, setBackButton] = useState(true)
-
+    const handleBackToDashboardHide = () => {
+        const backbtn = document.getElementById("backbutton")
+        backbtn.style.display = "none"
+        navigate("/admindashboard/")
+    }
+    
     useEffect(() => {
         const cloudbaseUseeffectController = async () => {
-            const button = document.getElementById("backbutton")
-            button.style.display = "block"
+           
+  
             if (googlecloudbaseid) {
 
                 return
@@ -38,12 +47,6 @@ const AdminDashboard = () => {
 
     const connectGoogleDrive = async () => {
         window.location.href = `${import.meta.env.VITE_BACKEND_URL}/first-google-login-redirector`
-    }
-    const handleBackToDashboard = (e) => {
-
-        const button = document.getElementById("backbutton")
-        button.style.display = "none"
-        navigate(-1)
     }
     const handleLogout = async () => {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/usernamelogout`,
@@ -105,7 +108,7 @@ const AdminDashboard = () => {
                         {(googlecloudbaseid) ? (<span style={{ color: "blue" }}>Connected to drive!!</span>) : (<button onClick={connectGoogleDrive} style={{ color: "white", backgroundColor: "red" }}>connect drive</button>)}
 
                     </div>
-                    {(backButton) ? (<button id="backbutton" onClick={(e) => { handleBackToDashboard(e) }}>🔙</button>) : (null)}
+                    <button id="backbutton" onClick={() => { handleBackToDashboardHide() }}>🔙</button>
                     <button onClick={handleLogout}>Logout</button>
                 </div>
             </div>

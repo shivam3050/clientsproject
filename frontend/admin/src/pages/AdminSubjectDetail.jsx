@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { handleDelete, handleUpload } from "../controller/FileController"
+import { handleBackToDashboardComeBack } from "./AdminDashboard"
 
 export const AdminSubjectDetail = () => {
     const params = useParams()
@@ -31,6 +32,8 @@ export const AdminSubjectDetail = () => {
 
     useEffect(() => {
         const useEffectFilesController = async () => {
+
+            handleBackToDashboardComeBack()
 
             if (!subject) {
                 console.log("no subject provided to useffetct")
@@ -104,7 +107,7 @@ export const AdminSubjectDetail = () => {
 
                                 </div>
                                 <div>
-                                    {decodeURIComponent(item.filesize).slice(0,8)} bytes
+                                    <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`} frameborder="0"  allow="autoplay"></iframe>
                                 </div>
                                 <div>
                                     <button style={{color:"white",backgroundColor:"red"}} onClick={(e)=>{handleDelete(e,item)}}>Delete</button>

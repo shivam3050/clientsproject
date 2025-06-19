@@ -254,7 +254,8 @@ connectDB()
             const newAccessToken = generateAccessToken(user.username)
             const options = {
                 httpOnly: true,
-                secure: true
+                secure: true,
+                sameSite:"None"
             }
             return res
                 .status(200)
@@ -341,14 +342,13 @@ connectDB()
                     const options = {
                         httpOnly: true,
                         secure: true,
-                        sameSite: "Lax",
+                        sameSite:"None",
                         path: "/",                   // optional but recommended
                         maxAge: 7 * 24 * 60 * 60 * 1000
 
                     }
 
 
-                    const frontendURL = process.env.FRONTEND_URL;
                     res.status(200)
                         .cookie("accessToken", newAccessToken, options)
                         .cookie("refreshToken", newRefreshToken, options)
@@ -383,7 +383,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",
+                sameSite:"None",
                 path: "/",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
@@ -441,7 +441,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",
+                sameSite: "None",
                 path: "/",                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
@@ -538,7 +538,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite: "Lax",
+                sameSite: "None",
                 path: "/",                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
 

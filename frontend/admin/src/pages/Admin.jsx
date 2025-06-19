@@ -9,7 +9,7 @@ const Adminn = ()=>{
        <main className="admin-main">
 
         <header className="admin-main-header">
-            <div className="admin-main-header-child">=</div>
+            <div className="admin-main-header-child">&nbsp;=</div>
             <div className="admin-main-header-child">C</div>
             <div className="admin-main-header-child">3</div>
             <div className="admin-main-header-child">4</div>

@@ -78,6 +78,12 @@
   box-sizing: border-box;
   background-color: #000000;
 }
+.signin-box label{
+  display: block;
+  color: white;
+  font-size: 25px;
+  margin-bottom: 10px;
+}
 .signin-box form input{
   display: block;
   color: white;

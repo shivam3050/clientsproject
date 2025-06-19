@@ -1,15 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1e272e">
-    <title>Welcome Shivam</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <script>
+    const designWidth = 405;
+    const deviceWidth = window.innerWidth;
+    const scale = deviceWidth / designWidth;
+
+    const meta = document.createElement("meta");
+    meta.name = "viewport";
+    meta.content = `width=${designWidth}, initial-scale=${scale}, maximum-scale=1.0, user-scalable=no`;
+    document.head.appendChild(meta);
+  </script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1e272e">
+  <title>RS</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

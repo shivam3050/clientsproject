@@ -57,6 +57,7 @@ export class AutoLogin {
                     console.log("Refresh token is also expired you need to login manully")
                     return null;
                 } else {
+                    console.log("retyring.....")
                     return await this.testAccessTokenWithLoginAccess()
                 }
             }

@@ -846,6 +846,7 @@ connectDB()
 
             const fileSize = parseInt(req.headers['x-file-size']); // File size from client
             const contentType = req.headers['x-mime-type'];
+            console.log("this is filetype , ",contentType)
 
 
 

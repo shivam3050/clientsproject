@@ -76,7 +76,7 @@ export const AdminSubjectDetail = () => {
                         </div>
 
                         <div>
-                            <input type="submit" style={{ color: "black" }} value="Upload" />
+                            <input type="submit" value="Upload" />
                         </div>
                     </form>
                     <div className="loading-svg-container">

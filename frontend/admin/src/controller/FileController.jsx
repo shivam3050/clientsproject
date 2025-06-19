@@ -1,7 +1,8 @@
+
 export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
     e.preventDefault()
     const form = e.target.parentElement
-    const file = form.querySelector("input[name='filepicker']")
+    const file = form.querySelector("input[name='filepicker']").files[0]
     const virtualBranch = form.querySelector("input[name='branch']")
     const username = localStorage.getItem("loggedInUsername")
     const googlecloudbaseid = localStorage.getItem("googleCloudbaseId")
@@ -59,11 +60,16 @@ export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
         uploadLog.current.textContent = ""
         const Uploader = new Uploadfile();
         const res = await Uploader.uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch);
+
         if (res) {
             uploadLog.current.textContent = "Upload successfully"
+            uploadLog.current.style.color = "green"
+            uploadLog.current.style.fontWeight = "800"
         }
     } catch (error) {
         uploadLog.current.textContent = "Upload Failed"
+        uploadLog.current.style.color = "red"
+        uploadLog.current.style.fontWeight = "800"
 
     } finally {
         clearInterval(uploadingAnimation)
@@ -139,6 +145,8 @@ export class Uploadfile {
             },
             body: file
         })
+        console.log((file).type)
+       
         if (responseStatus.status === 401) {
 
             if (this.#retryUpload < 2) {

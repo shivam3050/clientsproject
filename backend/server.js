@@ -414,10 +414,15 @@ connectDB()
             //     res.status(404).send("Google access token is not available")
             //     return;
             // }
-            const decodedAccessToken = verifyAccessToken(comingAccessToken)
-            if (!decodedAccessToken) {
-                return res.status(401).send("expired access token")
-            }
+            try {
+    const decodedAccessToken = await verifyAccessToken(comingAccessToken);
+    if (!decodedAccessToken) {
+        return res.status(401).send("expired access token");
+    }
+    // Continue
+} catch (err) {
+    return res.status(401).send("Invalid or expired access token");
+}
             const user = await findUserByUsername(decodedAccessToken.username)
             if (!user) {
                 return res.status(404).send("User not found in db")

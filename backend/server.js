@@ -342,7 +342,7 @@ connectDB()
                         httpOnly: true,
                         secure: true,
                         sameSite: "Lax",
-                        path: "/"  ,                   // optional but recommended
+                        path: "/",                   // optional but recommended
                         maxAge: 7 * 24 * 60 * 60 * 1000
 
                     }
@@ -384,7 +384,7 @@ connectDB()
                 httpOnly: true,
                 secure: true,
                 sameSite: "Lax",
-                path: "/"  ,                  
+                path: "/",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
             return res
@@ -414,17 +414,19 @@ connectDB()
             //     res.status(404).send("Google access token is not available")
             //     return;
             // }
+            let user=null
             try {
-    const decodedAccessToken = await verifyAccessToken(comingAccessToken);
-    if (!decodedAccessToken) {
-        return res.status(401).send("expired access token");
-    }
-    // Continue
-} catch (err) {
-    console.log("the error ,",err)
-    return res.status(401).send("Invalid or expired access token");
-}
-            const user = await findUserByUsername(decodedAccessToken.username)
+                const decodedAccessToken = await verifyAccessToken(comingAccessToken);
+                if (!decodedAccessToken) {
+                    return res.status(401).send("expired access token");
+                }
+                // Continue
+                user = await findUserByUsername(decodedAccessToken.username)
+            } catch (err) {
+                console.log("the error ,", err)
+                return res.status(401).send("Invalid or expired access token");
+            }
+            // const user = await findUserByUsername(decodedAccessToken.username)
             if (!user) {
                 return res.status(404).send("User not found in db")
             }
@@ -440,7 +442,7 @@ connectDB()
                 httpOnly: true,
                 secure: true,
                 sameSite: "Lax",
-                path: "/"  ,                   // optional but recommended
+                path: "/",                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
             const frontendURL = process.env.FRONTEND_URL;
@@ -448,7 +450,7 @@ connectDB()
                 .cookie("accessToken", newAccessToken, options)
                 .cookie("refreshToken", newRefreshToken, options)
                 .json({ username: updatedUser.username, fullname: updatedUser.fullname })
-            console.log("yes you are logged out",updatedUser.username)
+            console.log("yes you are logged out", updatedUser.username)
             return
 
         });
@@ -537,11 +539,11 @@ connectDB()
                 httpOnly: true,
                 secure: true,
                 sameSite: "Lax",
-                path: "/"  ,                   // optional but recommended
+                path: "/",                   // optional but recommended
                 maxAge: 7 * 24 * 60 * 60 * 1000
 
             }
-            console.log("successfully oauthorised and send the cookies of both",username)
+            console.log("successfully oauthorised and send the cookies of both", username)
             res.status(200)
                 // .cookie("accessToken", appAccessToken, options)
                 // .cookie("refreshToken", appRefreshToken, options)
@@ -601,7 +603,7 @@ connectDB()
                 console.log("No google access token send")
                 return res.status(404).send("No google access token send")
             }
-            
+
             const FOLDER_NAME = "AdminCloudBase"
             const folderSchema = {
                 name: FOLDER_NAME,

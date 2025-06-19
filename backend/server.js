@@ -421,6 +421,7 @@ connectDB()
     }
     // Continue
 } catch (err) {
+    console.log("the error ,",err)
     return res.status(401).send("Invalid or expired access token");
 }
             const user = await findUserByUsername(decodedAccessToken.username)

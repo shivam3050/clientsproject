@@ -7,6 +7,7 @@ export const AdminSignin = () => {
     const handleManualLogin = async (e) => {
         e.preventDefault()
         console.log("initailising manual login")
+        errLog.current.textContent = "Loading..."
         const form = e.target.parentElement
         const username = form.querySelector("input[name='username']").value
         const password = form.querySelector("input[name='password']").value

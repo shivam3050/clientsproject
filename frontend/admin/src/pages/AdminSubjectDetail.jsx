@@ -27,6 +27,17 @@ export const AdminSubjectDetail = () => {
         }
         return await res.json()
     }
+    // function openFullscreen(element) {
+    //     if (element.requestFullscreen) {
+    //         element.requestFullscreen();
+    //     } else if (element.webkitRequestFullscreen) {
+    //         element.webkitRequestFullscreen();
+    //     } else if (element.msRequestFullscreen) {
+    //         element.msRequestFullscreen();
+    //     } else {
+    //     }
+    // }
+
 
 
 
@@ -35,10 +46,10 @@ export const AdminSubjectDetail = () => {
         const useEffectFilesController = async () => {
 
             handleBackToDashboardComeBack()
-            if(files){
+            if (files) {
                 return
             }
-            if(subject==="create-new-subject"){
+            if (subject === "create-new-subject") {
                 return
             }
 
@@ -46,9 +57,9 @@ export const AdminSubjectDetail = () => {
                 console.log("no subject provided to useffetct")
                 return
             }
-         
+
             const recievedfiles = await getFiles(subject)
-            if(!recievedfiles){
+            if (!recievedfiles) {
                 console.log("no files present")
                 return
             }
@@ -66,27 +77,27 @@ export const AdminSubjectDetail = () => {
                     }}>
                         <div className="label">
                             {
-                                (subject==="create-new-subject")?(
-                                   <input type="text" required name="subject" placeholder="Enter new subject name" />
-                                ):(subject)
+                                (subject === "create-new-subject") ? (
+                                    <input type="text" required name="subject" placeholder="Enter new subject name" />
+                                ) : (<h2 style={{fontStyle:"oblique"}}>{subject}</h2>)
                             }
                         </div>
                         <input type="file" name="filepicker" />
                         <div className="file-branch-section">
                             <div>
-                                <input type="radio" name="branch"  value="Notes" />Notes
+                                <input type="radio" name="branch" value="Notes" />Notes
                             </div>
                             <div>
-                                <input type="radio" name="branch"  value="Books" />Books
+                                <input type="radio" name="branch" value="Books" />Books
                             </div>
                             <div>
-                                <input type="radio" name="branch"  value="Previous Year Papers" />Previous Year Papers
+                                <input type="radio" name="branch" value="Previous Year Papers" />Previous Year Papers
                             </div>
                             <div>
-                                <input type="radio" name="branch"  value="Short Tricks" />Short Tricks
+                                <input type="radio" name="branch" value="Short Tricks" />Short Tricks
                             </div>
                             <div>
-                                <input type="radio" name="branch"  value="Custom Notes" defaultChecked />Custom Notes
+                                <input type="radio" name="branch" value="Custom Notes" defaultChecked />Custom Notes
                             </div>
                         </div>
 
@@ -113,18 +124,25 @@ export const AdminSubjectDetail = () => {
                 <section className="list-files-section">
                     {files ? (
                         files.map((item, index) => {
-                            return (<div className="file-card-admin" key={index}>
+                            return (<div className="file-card-admin" key={index} onClick={(e) => {
+                                const ifram = e.currentTarget.querySelector("iframe")
+                                window.goFullscreen(ifram);
+                                }}>
                                 <div>
-                                {decodeURIComponent(item.filename).slice(0,12)}
+                                    {decodeURIComponent(item.filename).slice(0, 12)}
 
                                 </div>
-                                <div>
-                                    <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`} frameborder="0"  allow="autoplay"></iframe>
+                                <div id="iframeContainer" >
+                                    <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`}
+                                        allow="fullscreen"
+                                        
+                                        
+                                        frameBorder="0" ></iframe>
                                 </div>
                                 <div>
-                                    <button style={{color:"white",backgroundColor:"red"}} onClick={(e)=>{handleDelete(e,item)}}>Delete</button>
+                                    <button style={{ color: "white", backgroundColor: "red" }} onClick={(e) => { e.stopPropagation();handleDelete(e, item) }}>Delete</button>
                                 </div>
-                                </div>)
+                            </div>)
                         })
                     ) : (<p>No files recievd</p>)}
                 </section>

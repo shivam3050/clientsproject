@@ -284,14 +284,20 @@
   transition: opacity 0.4s ease-in;
   justify-content: center;
   align-items: center;
-  min-height: 250px;
+  /* min-height: 250px; */
+  min-height: max-content;
   min-width: 250px;
+  box-sizing: border-box;
+  font-size: 10px;
+
 }
 .file-card-admin > :nth-child(1){
   flex: 1;
 }
 .file-card-admin > :nth-child(2){
   display: flex;
+  width: 100%;
+  min-height: max-content;
   justify-self: center;
   align-items: center;
   flex: 5;

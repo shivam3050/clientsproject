@@ -4,7 +4,8 @@
 .admin-main {
   background-color: #000000;
   min-height: 720px;
-  min-width: 405px;
+  min-width: 100vw;
+  width: max-content;
   border: none;
   display: flex;
   flex-direction: column;
@@ -40,7 +41,7 @@
   justify-content: center;
   align-items: start;
   position: relative;
-  margin-top: clamp(120px, 12vh, 200px);
+  margin-top: clamp(100px,11vh,180px);
 }
 
 
@@ -112,11 +113,12 @@
   flex-direction: column;
   align-items: center;
   background-color: black;
+  gap: 15px;
 }
 .admin-main-body .admin-dashboard-main .title{
   display: flex;
   width: 90%;
-  padding: 10px;
+  padding: 0px;
   box-sizing: border-box;
   justify-content: space-between;
 }

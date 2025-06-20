@@ -46,10 +46,14 @@ export const AdminSignin = () => {
     const autoLoginHandler = async () => {
         const Admin = new AutoLogin()
         const user = await Admin.testAccessTokenWithLoginAccess()
+        errLog.current.textContent = "Loading..."
+    
         if (!user) {
+            errLog.current.textContent = ""
             console.log("some error occured auto login handler")
             return
         } else {
+            errLog.current.textContent = ""
             localStorage.setItem("loggedInUsername", user.username);
             localStorage.setItem("fullname", user.fullname);
             navigate("/admindashboard")
@@ -63,8 +67,10 @@ export const AdminSignin = () => {
         const autoLoginController = async () => {
             const result = await autoLoginHandler()
             if(!result){
+                errLog.current.textContent = ""
                 return
             }
+            
         }
         autoLoginController()
     })
@@ -74,7 +80,7 @@ export const AdminSignin = () => {
             <form action="" className="inputs" onSubmit={(e)=>{handleManualLogin(e)}}>
                 <input required type="text" name="username" placeholder="Enter username" />
                 <input required type="password" name="password" placeholder="Enter password" />
-                <label ref={errLog}></label>
+                <label style={{fontSize:"10px"}} ref={errLog}></label>
                 <input type="submit" value="Submit" />
             </form>
         </section>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Outlet, useNavigate, useParams } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 
 export const AdminDashboardSubjectContainer = ()=>{
     const [subjects,setSubjects] = useState(null)
@@ -19,23 +19,37 @@ export const AdminDashboardSubjectContainer = ()=>{
     }
 
     useEffect(()=>{
+        if(subjects){
+            return
+        }
         const loadSubjectUseEffect = async()=>{
             setSubjects(await getSubjects())
         }
         loadSubjectUseEffect()
+        
     },[])
 
     return (
         <section className="admin-dashboard-content">
                 <div className="subjectbar">
+                    <div onClick={()=>{
+                                
+                                navigate(`/admindashboard/create-new-subject`)
+                                console.log(`passed create-new-subject`)
+                            }} style={{cursor:"pointer"}}>
+                                <pre style={{fontSize:"280%"}}>+ </pre>
+                                subject
+                    </div>
+
                     {subjects ? (
                         subjects.map((item,index)=>{
                             return <div onClick={()=>{
                                 const subject = encodeURIComponent(item)
                                 navigate(`/admindashboard/${subject}`)
+                                console.log(`passed ${subject}`)
                             }} key={index}>{item}</div>
                         })
-                    ):(<p>No Subjects</p>)}
+                    ):(null)}
                 </div>
                 <Outlet/>
             </section>

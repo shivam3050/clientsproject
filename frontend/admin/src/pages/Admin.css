@@ -240,10 +240,23 @@
 .upload-form input[type="submit"]{
   background-color: green;
 }
+.upload-form input[type="file"]{
+  width: 50%;
+}
 .upload-section{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.upload-section .upload-form input[type="text"]{
+  display: block;
+  border-right: 1px solid #3c3c3c;
+  border-radius: 2px;
+  background-color: #000000;
+  color: white;
+  height: 20px;
+  width: 95%;
+  font-size: 18px;
 }
 
 .upload-form .loading-svg-container{

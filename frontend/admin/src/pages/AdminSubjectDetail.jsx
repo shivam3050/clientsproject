@@ -6,6 +6,7 @@ import { handleBackToDashboardComeBack } from "./AdminDashboard"
 export const AdminSubjectDetail = () => {
     const params = useParams()
     const subject = params.subject
+
     const [files, setFiles] = useState(null)
 
     const progressRef = useRef();
@@ -34,6 +35,12 @@ export const AdminSubjectDetail = () => {
         const useEffectFilesController = async () => {
 
             handleBackToDashboardComeBack()
+            if(files){
+                return
+            }
+            if(subject==="create-new-subject"){
+                return
+            }
 
             if (!subject) {
                 console.log("no subject provided to useffetct")
@@ -42,13 +49,14 @@ export const AdminSubjectDetail = () => {
          
             const recievedfiles = await getFiles(subject)
             if(!recievedfiles){
+                console.log("no files present")
                 return
             }
             setFiles(recievedfiles)
 
         }
         useEffectFilesController()
-    },[subject])
+    })
     return (
         subject ? (
             <div className="subject-container">
@@ -57,12 +65,16 @@ export const AdminSubjectDetail = () => {
                         handleUpload(e, progressRef, subject, uploadLog)
                     }}>
                         <div className="label">
-                            {subject}
+                            {
+                                (subject==="create-new-subject")?(
+                                   <input type="text" required name="subject" placeholder="Enter new subject name" />
+                                ):(subject)
+                            }
                         </div>
-                        <input type="file" name="filepicker" id="" />
+                        <input type="file" name="filepicker" />
                         <div className="file-branch-section">
                             <div>
-                                <input type="radio" name="branch"  value="Notes" checked />Notes
+                                <input type="radio" name="branch"  value="Notes" />Notes
                             </div>
                             <div>
                                 <input type="radio" name="branch"  value="Books" />Books
@@ -74,7 +86,7 @@ export const AdminSubjectDetail = () => {
                                 <input type="radio" name="branch"  value="Short Tricks" />Short Tricks
                             </div>
                             <div>
-                                <input type="radio" name="branch"  value="Custom Notes" />Custom Notes
+                                <input type="radio" name="branch"  value="Custom Notes" defaultChecked />Custom Notes
                             </div>
                         </div>
 

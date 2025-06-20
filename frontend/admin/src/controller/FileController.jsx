@@ -3,7 +3,9 @@ export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
     e.preventDefault()
     const form = e.target.parentElement
     const file = form.querySelector("input[name='filepicker']").files[0]
-    const virtualBranch = form.querySelector("input[name='branch']")
+    const newSubject = form?.querySelector("input[name='subject']")?.value
+    newSubject?(virtualParent=newSubject):(null)
+    const virtualBranch = form.querySelector("input[name='branch']").value
     const username = localStorage.getItem("loggedInUsername")
     const googlecloudbaseid = localStorage.getItem("googleCloudbaseId")
 

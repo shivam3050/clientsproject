@@ -26,6 +26,7 @@ function App() {
           <Route path="/admindashboard" element={<AdminDashboard />} >
             <Route index element={<AdminDashboardSubjectContainer />} />
             <Route path=":subject" element={<AdminSubjectDetail/>}/>
+            {/* <Route path="/newsubject" element={<AdminSubjectDetail/>}/> */}
           </Route>
         </Route>
         

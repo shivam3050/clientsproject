@@ -105,11 +105,11 @@ const AdminDashboard = () => {
                 </h1>
                 <div>
                     <div>
+                        <button onClick={handleLogout}>Logout</button>
                         {(googlecloudbaseid) ? (<span style={{ color: "blue" }}>Connected to drive!!</span>) : (<button onClick={connectGoogleDrive} style={{ color: "white", backgroundColor: "red" }}>connect drive</button>)}
-
                     </div>
-                    <button id="backbutton" onClick={() => { handleBackToDashboardHide() }}>🔙</button>
-                    <button onClick={handleLogout}>Logout</button>
+                    <button style={{marginTop:"10px"}} id="backbutton" onClick={() => { handleBackToDashboardHide() }}>🔙</button>
+                    
                 </div>
             </div>
             <Outlet />

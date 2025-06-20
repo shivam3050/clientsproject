@@ -255,7 +255,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite:"None"
+                sameSite: "None"
             }
             return res
                 .status(200)
@@ -342,7 +342,7 @@ connectDB()
                     const options = {
                         httpOnly: true,
                         secure: true,
-                        sameSite:"None",
+                        sameSite: "None",
                         path: "/",                   // optional but recommended
                         maxAge: 7 * 24 * 60 * 60 * 1000
 
@@ -383,7 +383,7 @@ connectDB()
             const options = {
                 httpOnly: true,
                 secure: true,
-                sameSite:"None",
+                sameSite: "None",
                 path: "/",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             }
@@ -414,7 +414,7 @@ connectDB()
             //     res.status(404).send("Google access token is not available")
             //     return;
             // }
-            let user=null
+            let user = null
             try {
                 const decodedAccessToken = await verifyAccessToken(comingAccessToken);
                 if (!decodedAccessToken) {
@@ -823,6 +823,11 @@ connectDB()
         // });
 
 
+        
+        // app.post("create-new-subject",async(req,res)=>{
+
+        // })
+
 
         app.post("/uploadfile", async (req, res) => {
             // process.stdin._read()
@@ -843,13 +848,38 @@ connectDB()
             if (!(parentFolderId && username && fileName && virtualParent && virtualBranch)) {
                 return res.status(404).send("no other credentials present")
             }
+            if(virtualParent === "create-new-folder"){
+                return res.status(404).send("subject not provided")
+            }
 
             const fileSize = parseInt(req.headers['x-file-size']); // File size from client
             const contentType = req.headers['x-mime-type'];
-            console.log("this is filetype , ",contentType)
 
 
+            async function makeFilePublic(fileId, accessToken) {
+                try {
+                    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            role: "reader",
+                            type: "anyone"
+                        })
+                    });
 
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        console.error("Failed to make file public:", errorText);
+                    } else {
+                        console.log("File made public successfully.");
+                    }
+                } catch (err) {
+                    console.error("Error setting file to public:", err);
+                }
+            }
             async function resumableUploadLinkCreator(accessToken, parentFolderId, fileName) {
                 try {
                     const response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
@@ -875,7 +905,6 @@ connectDB()
                     return null;
                 }
             }
-
             async function checkUploadedRange(uploadUrl, accessToken) {
                 try {
                     const response = await fetch(uploadUrl, {
@@ -980,6 +1009,8 @@ connectDB()
                         }
 
                         const info = await response.json();
+
+                        await makeFilePublic(info.id, accessToken);
 
                         // Save to database
                         try {

@@ -136,7 +136,7 @@ export const AdminSubjectDetail = () => {
                                 <div id="iframeContainer" >
                                     <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`}
                                         allow="fullscreen"
-                                        height="200px" width="200px"
+                                        height="210px" width="280px"
                                         
                                         frameBorder="0" ></iframe>
                                 </div>

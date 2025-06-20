@@ -124,7 +124,8 @@ export const AdminSubjectDetail = () => {
                 <section className="list-files-section">
                     {files ? (
                         files.map((item, index) => {
-                            return (<div className="file-card-admin" key={index} onClick={(e) => {
+                            return (
+                            <div className="file-card-admin" key={index} onClick={(e) => {
                                 const ifram = e.currentTarget.querySelector("iframe")
                                 window.goFullscreen(ifram);
                                 }}>

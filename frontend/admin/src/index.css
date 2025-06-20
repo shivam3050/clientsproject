@@ -1,19 +1,20 @@
 
 /* Globally hide scrollbars */
 * {
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE and Edge */
+  scrollbar-width: none;        
+  -ms-overflow-style: none;     
   box-sizing: border-box;
 }
 
 *::-webkit-scrollbar {
-  display: none;                /* Chrome, Safari, Edge */
+  display: none;               
 }
 
 *{
   margin:0px;
   padding:0px;
   color: rgb(255, 255, 255);
+  font-family: cursive;
 }
 body{
 

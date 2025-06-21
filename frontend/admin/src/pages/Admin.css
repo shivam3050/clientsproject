@@ -56,8 +56,60 @@
 
 /*signin-box*/
 
+.container-sign-in{
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2px;
+}
+
+
+.container-sign-in .back-overlay{
+  background-color:transparent;
+  width: 303px;
+  height: 403px;
+  position: absolute;
+  z-index: 2;
+  border-radius: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+
+@keyframes rotateanimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+  
+}
+.container-sign-in .rotator{
+  background: linear-gradient(to top,rgb(43, 0, 255)50%,rgb(255, 0, 89) 100%);
+  /* background: linear-gradient(to top, #3c3c3c, transparent); */
+
+
+
+  height: 600px;
+  min-width: 600px;
+  animation: rotateanimation 0.8s linear 0s infinite normal forwards;
+}
+
+
+
+
+
+
+
+
 .admin-main-body .signin-box {
+  
   width: 300px;
+  position: relative;
   height: 400px;
   background-color: black;
   border: none;

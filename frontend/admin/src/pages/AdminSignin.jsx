@@ -75,14 +75,21 @@ export const AdminSignin = () => {
         autoLoginController()
     },[])
     return (
-        <section className="signin-box">
-            <label htmlFor="">Admin Login</label>
-            <form action="" className="inputs" onSubmit={(e)=>{handleManualLogin(e)}}>
-                <input required type="text" name="username" placeholder="Enter username" />
-                <input required type="password" name="password" placeholder="Enter password" />
-                <label style={{fontSize:"10px"}} ref={errLog}></label>
-                <input type="submit" value="Submit" />
-            </form>
-        </section>
+        <div className="container-sign-in">
+            <div className="back-overlay">
+                <div className="rotator">
+
+                </div>
+            </div>
+            <section className="signin-box">
+                <label htmlFor="">Admin Login</label>
+                <form action="" className="inputs" onSubmit={(e)=>{handleManualLogin(e)}}>
+                    <input  required type="text" name="username" placeholder="Enter username" />
+                    <input required type="password" name="password" placeholder="Enter password" />
+                    <label style={{fontSize:"10px"}} ref={errLog}></label>
+                    <input type="submit" value="Submit" />
+                </form>
+            </section>
+        </div>
     )
 }

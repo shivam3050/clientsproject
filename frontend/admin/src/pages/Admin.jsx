@@ -13,10 +13,12 @@ const Adminn = ()=>{
 
         <header className="admin-main-header">
             <div className="admin-main-header-child">&nbsp;=</div>
-            <div className="admin-main-header-child">C</div>
-            <div className="admin-main-header-child">3</div>
-            <div className="admin-main-header-child">4</div>
-            <div className="admin-main-header-child">5</div>
+            <div className="admin-main-header-child">S</div>
+            <div className="admin-main-header-child">h</div>
+            <div className="admin-main-header-child">i</div>
+            <div className="admin-main-header-child">v</div>
+            <div className="admin-main-header-child">a</div>
+            <div className="admin-main-header-child">m</div>
         </header>
         <main className="admin-main-body">
             <Outlet/>

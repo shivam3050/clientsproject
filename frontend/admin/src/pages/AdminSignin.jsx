@@ -26,6 +26,7 @@ export const AdminSignin = () => {
                 )
             }
         );
+        console.log(`${import.meta.env.VITE_BACKEND_URL}/usernamelogin`)
         if (res.status == 200) {
             console.log("you are logged iins successfully")
             const data = await res.json()

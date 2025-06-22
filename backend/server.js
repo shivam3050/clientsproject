@@ -153,7 +153,7 @@ async function unsetGoogleRefreshTokenInDatabase(username) {
         return null
     }
 }
-async function pushFileInfoInDatabase(userId, username, fileId, fileName, virtualParent, virtualBranch, fileSize) {
+async function pushFileInfoInDatabase(userId, username, fileId, fileName, virtualParent, virtualBranch, fileSize,uploaddate,comment) {
     try {
         const fileInfo = await File.insertOne(
             {
@@ -163,7 +163,9 @@ async function pushFileInfoInDatabase(userId, username, fileId, fileName, virtua
                 filename: fileName,
                 virtualparent: virtualParent,
                 virtualbranch: virtualBranch,
-                filesize: fileSize
+                filesize: fileSize,
+                uploaddate: uploaddate,
+                comment: comment
             }
         )
         return fileInfo
@@ -839,6 +841,7 @@ connectDB()
             const fileName = req.headers['x-file-name'];
             const virtualParent = req.query.virtualParent;
             const virtualBranch = req.query.virtualBranch;
+            const comment = req.query.comment;
 
 
             if (!accessToken) {
@@ -1018,7 +1021,8 @@ connectDB()
                             if (!user) {
                                 return res.status(404).send("User not found after upload");
                             }
-
+                            const dateInstance = new Date()
+                            const uploaddate = dateInstance.toDateString()
                             const statusWithInfo = await pushFileInfoInDatabase(
                                 user._id,
                                 username,
@@ -1026,7 +1030,9 @@ connectDB()
                                 fileName,
                                 virtualParent,
                                 virtualBranch,
-                                fileSize
+                                fileSize,
+                                uploaddate,
+                                comment
                             );
                             res.status(200).json(statusWithInfo);
                         } catch (error) {
@@ -1174,7 +1180,7 @@ connectDB()
             if (!filesList.length) {
                 return res.status(404).send("no files found")
             }
-            // console.log(filesList)
+            
             return res.status(200).json(filesList)
 
         })

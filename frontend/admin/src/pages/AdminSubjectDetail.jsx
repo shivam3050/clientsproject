@@ -73,13 +73,14 @@ export const AdminSubjectDetail = () => {
             <div className="subject-container">
                 <section className="upload-section">
                     <form action="" className="upload-form" onSubmit={(e) => {
-                        handleUpload(e, progressRef, subject, uploadLog)
+                        const description = document.getElementById("description").value
+                        handleUpload(e, progressRef, subject, uploadLog,description)
                     }}>
                         <div className="label">
                             {
                                 (subject === "create-new-subject") ? (
                                     <input type="text" required name="subject" placeholder="Enter new subject name" />
-                                ) : (<h2 style={{fontStyle:"oblique"}}>{subject}</h2>)
+                                ) : (<h2 style={{ fontStyle: "oblique" }}>{subject}</h2>)
                             }
                         </div>
                         <input type="file" name="filepicker" />
@@ -101,8 +102,9 @@ export const AdminSubjectDetail = () => {
                             </div>
                         </div>
 
-                        <div>
+                        <div className="upload-btn-and-description">
                             <input type="submit" value="Upload" />
+                            <textarea id="description" name="description" rows="4" maxLength="80"  placeholder="Enter any description optional..." spellcheck="false"/>
                         </div>
                     </form>
                     <div className="loading-svg-container">
@@ -125,25 +127,31 @@ export const AdminSubjectDetail = () => {
                     {files ? (
                         files.map((item, index) => {
                             return (
-                            <div className="file-card-admin" key={index} onClick={(e) => {
-                                const ifram = e.currentTarget.querySelector("iframe")
-                                window.goFullscreen(ifram);
+                                <div className="file-card-admin" key={index} onClick={(e) => {
+                                    const ifram = e.currentTarget.querySelector("iframe")
+                                    window.goFullscreen(ifram);
                                 }}>
-                                <div>
-                                    {decodeURIComponent(item.filename).slice(0, 12)}
-
-                                </div>
-                                <div id="iframeContainer" >
-                                    <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`}
-                                        allow="fullscreen"
-                                        height="210px" width="280px"
+                                    <div className="uploaddate-and-filename">
+                                        <h4>
+                                            {decodeURIComponent(item.filename).slice(0, 12)}
+                                        </h4>
                                         
-                                        frameBorder="0" ></iframe>
-                                </div>
-                                <div>
-                                    <button style={{ color: "white", backgroundColor: "red" }} onClick={(e) => { e.stopPropagation();handleDelete(e, item) }}>Delete</button>
-                                </div>
-                            </div>)
+                                        <h4>
+                                            {decodeURIComponent(item.uploaddate)}
+                                        </h4>
+
+                                    </div>
+                                    <div id="iframeContainer" >
+                                        <iframe src={`https://drive.google.com/file/d/${item.fileid}/preview`}
+                                            allow="fullscreen"
+                                            height="210px" width="280px"
+
+                                            frameBorder="0" ></iframe>
+                                    </div>
+                                    <div>
+                                        <button style={{ color: "white", backgroundColor: "red" }} onClick={(e) => { e.stopPropagation(); handleDelete(e, item) }}>Delete</button>
+                                    </div>
+                                </div>)
                         })
                     ) : (<p>No files recievd</p>)}
                 </section>

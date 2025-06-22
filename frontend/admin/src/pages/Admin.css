@@ -67,8 +67,8 @@
 
 .container-sign-in .back-overlay{
   background-color:transparent;
-  width: 303px;
-  height: 403px;
+  width: 305px;
+  height: 405px;
   position: absolute;
   z-index: 2;
   border-radius: 2px;
@@ -325,7 +325,14 @@
 
 
 
-
+.upload-form  .upload-btn-and-description {
+  display: flex;
+  justify-content: space-between;
+}
+.upload-form  .upload-btn-and-description #description{
+  color: black;
+  padding: 5px;
+}
 
 
 
@@ -368,4 +375,23 @@
 
 .fade-out{
   opacity: 0;
+}
+
+.file-card-admin .uploaddate-and-filename {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  width: 900%;
+  align-items: center;
+}
+.uploaddate-and-filename > :nth-child(1){
+font-family: 'Courier New', Courier, monospace;
+text-decoration: underline;
+
+  font-size: 10px;
+}
+.uploaddate-and-filename > :nth-child(2){
+font-family: 'Courier New', Courier, monospace;
+
+  font-size: 10px;
 }

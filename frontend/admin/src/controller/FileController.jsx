@@ -1,31 +1,31 @@
 
-export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
+export async function handleUpload(e, progressRef, virtualParent, uploadLog, description = "") {
     e.preventDefault()
     const form = e.target.parentElement
     const file = form.querySelector("input[name='filepicker']").files[0]
     const newSubject = form?.querySelector("input[name='subject']")?.value
-    newSubject?(virtualParent=newSubject):(null)
+    newSubject ? (virtualParent = newSubject) : (null)
     const virtualBranch = form.querySelector("input[name='branch']").value
     const username = localStorage.getItem("loggedInUsername")
     const googlecloudbaseid = localStorage.getItem("googleCloudbaseId")
 
-    if(!googlecloudbaseid){
+    if (!googlecloudbaseid) {
         console.log("ggoglecloudbase are not met")
         return null
     }
-    if(!username){
+    if (!username) {
         console.log("username are not met")
         return null
     }
-    if(!file){
+    if (!file) {
         console.log("file are not met")
         return null
     }
-    if(!virtualBranch){
+    if (!virtualBranch) {
         console.log("virtualbranch are not met")
         return null
     }
-    if(!virtualParent){
+    if (!virtualParent) {
         console.log("virtualpaaret are not met")
         return null
     }
@@ -61,11 +61,16 @@ export async function handleUpload(e,progressRef, virtualParent, uploadLog) {
     try {
         uploadLog.current.textContent = ""
         const Uploader = new Uploadfile();
-        const res = await Uploader.uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch);
+        const res = await Uploader.uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch, description);
 
         if (res) {
             uploadLog.current.textContent = "Upload successfully"
             uploadLog.current.style.color = "green"
+            uploadLog.current.style.fontWeight = "800"
+        }
+        else {
+            uploadLog.current.textContent = "Upload Failed"
+            uploadLog.current.style.color = "red"
             uploadLog.current.style.fontWeight = "800"
         }
     } catch (error) {
@@ -112,7 +117,7 @@ export function handleDelete(e, item) {
 export class Uploadfile {
 
     #retryUpload = 0
-    async uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch) {
+    async uploadfile(googlecloudbaseid, file, username, virtualParent, virtualBranch, description) {
 
         if (!googlecloudbaseid) {
             alert("Google cloudbase is absent.")
@@ -143,12 +148,13 @@ export class Uploadfile {
                 "x-parent-folder-id": googlecloudbaseid,
                 "Content-Type": file.type,
                 "Content-Length": file.size,
-                "x-username": username
+                "x-username": username,
+                "comment": description
             },
             body: file
         })
         console.log((file).type)
-       
+
         if (responseStatus.status === 401) {
 
             if (this.#retryUpload < 2) {

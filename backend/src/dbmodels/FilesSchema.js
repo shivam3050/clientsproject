@@ -15,7 +15,9 @@ const filesSchema = new Schema(
             ref: "User",
             required:true
         },
-        filesize:Number
+        filesize:Number,
+        uploaddate: String,
+        comment: String
         
     }
 )
